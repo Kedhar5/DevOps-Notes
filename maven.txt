@@ -1,0 +1,119 @@
+Maven
+---------------------------
+Maven is a open source, Java based Build tool
+Apache is the owner of Maven 
+That's why tool is called Apache Maven / Maven 
+
+Build: Process of creating the packages 
+Using Java we can create Stand alone apps, Web apps , Enterprise apps 
+
+to execute a java pgm first we need to compile using javac
+filr: hello.javac 
+ompilation :javac hello.java 
+then hello.class is created 
+then to execute we use java hello 
+
+For Stand alone apps we use java code and then we create jar file --> Java Archives 
+
+for web apps --> Java code = web content will be present 
+then we create war file --> Web Archive files 
+
+for enterprise apps --> e-commerce apps it has Java code + web content 
+we create ear --> enterprise archives for this
+
+Maven Directory Structure
+-------------------------------
+It is not a executable software 
+boot : jar files 
+bin : mvn 
+conf: settings.xml 
+lib: jar files 
+
+Java (JDK) is the Pre - Requisite Software for Maven.
+
+javac -version
+
+wget https://dlcdn.apache.org/maven/maven-3/3.9.5/binaries/apache-maven-3.9.5-bin.zip
+
+ <project> 
+
+	<groupID> company.project </groupID>
+	<artifactID> project name </artifactID>
+	<version> 1.0.0 </version>
+	<packaging> typeof package (war/jar/ear) </packaging>
+
+	<dependencies> 	
+		<groupID>  </groupID>
+		<artifactID> junit </artifactID>
+		etc...
+	</dependencies>
+
+ </project>
+
+mvn package --> to create the package 
+
+Maven Repos
+----------------------
+a)Maven local Repo 
+Folder(.m2) which is created when we run maven commands 
+.m2 file will be created in user Home directory 
+C;\\Users/kedhar/.m2/repository --> windows
+/home/kedhar/.m2/repository --> Linux 
+
+b)Maven Central Repo 
+It is provided by Maven Community 
+It has large number of repositories called as libraries 
+This Repo comes to play ehwn Maven doesnot find libraries in Local repositories
+
+c)Remote Repo 
+Enterpriseusually has their own repos for their projects. 
+They are different from local repos and are maintained in a different server 
+They are developed within the organization 
+
+Maven life cycles
+--------------------------
+Life Cycle            GOALS
+--------------------- -------------------------
+clean				  clean: delete the prev build files
+site				  site: generate the documentation 
+default 			  validate: validate the project direscory structure and resource files
+					  compile: compile the java source code and unit test cases 
+					  test: run the unit test cases 
+					  package: create teh packages (jar/war/ear)
+					  install: store the package in local repo 
+					  deploy: store package in remote repo 
+
+even if a single testcase is failed package will noy be built 
+to skip thes test cases we use mvn clean package -Dskiptests
+mvn clean package -Dmaven.test.skip=true 
+package name
+/maven-standalone-application-0.0.1-SNAPSHOT.jar
+artID.Vno.jar 
+after package build target directory is created and .jar is created 
+we execute mvn commands where the pom.xml is present 
+mvn clean -- Prev build files will be deleted
+
+mvn test --> to run only tests
+to change the default repo we need to modify settings.xml in conf directory  in maven home directory 
+
+<localRepository>/root/mavencustomlocalrepo/</localRepository>
+
+mvn clean package -DskipTests --> test cases are skipped
+[INFO] --- surefire:3.2.2:test (default-test) @ maven-standalone-application ---
+[INFO] Tests are skipped.
+
+mvn clean package -Dmaven.test.skip=true --> skip test cases 
+
+java -jar jarfilename
+
+Application Server
+-----------------------
+for war and ear files we need application servers like java based servers 
+JBoss
+Wildfly
+Weblogic 
+Websphere application server 
+Apache Tomcat 
+
+These tools are used to deploy only java based apps 
+For .net applications we use IIS 

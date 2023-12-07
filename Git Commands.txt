@@ -1,0 +1,204 @@
+Git Commands:-
+-----------------------
+Install Git Bash to execute Git Commands
+
+Create a local repository in desktop using mkdir command to execute any git command execute git local repository 
+git init
+
+Empty rep has three areas
+working area, staging area, Local repo 
+Working area files are also called as untracked files 
+whatever files are under working area is considered as dvelopment and files under staging area is development completed
+
+Any file that is created will be available in the working area 
+git status command is used to find 6out in which area the created file is present 
+
+git add is used to move files from working to staging area
+ex: git add *.java 
+git add . -->to move all files
+
+before commiting we need to configure email id and username of our GitHub account
+git config --global user.name "Kedhar5"
+git config --global user.email "kedharnath.nagella@gmail.com"
+git config --global --list --> this is used to find out the configured details
+
+git commit -m is used to move the files from staging area to Local repo 
+ex: git commit -m "first commit" --> if we use this all the files will be committed from staging to local repo 
+git commit -m "description" file file2
+
+After the code is committed we need to move the code to remote repository 
+git remote add fcart https://github.com/Kedhar-s-DevOps/Facebook
+git remote -v is used to check if any local rep is mapped to remote or not
+
+git push is used to move code from local rep to remote rep 
+git push fcart master
+here facrt is the alias name we used and master is the branch name 
+
+to push the code to remote repo we need to have credentials and for that we can generate token called PAT 
+PAT: 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
+
+git commit -a -m "commit message" --> thi is used to add and commit into local repo in one command
+but this command will not work for new files it works only for existing files 
+
+git log --> to find all the push happened from our local rep 
+
+git show bd5fa6987db7 --> display files that are committed under the commit id
+bd5fa6987db7 is the commit id here 
+
+to display only the filename committed under the commit id 
+git show --pretty="" --name-only bd5fa6987db7
+
+git reset --> to move files from staging to working area again
+git reset filename 
+
+git revert 4910d9cbd53d02191b3fd1855198c824281085fa --> Files that badly committed willbe reverted
+4910d9cbd53d02191b3fd1855198c824281085fa is commit id we can get from git log 
+
+git clean --> to remove the files present in working area 
+git clean -n --> to review the files that are going to be deleted 
+git clean -f --> remove the files forcibly
+git clean -f filename --> to remove particular file in working area 
+
+.gitignore
+--------------
+while creating a remote repo this option will be present 
+While we develop a code in any IDE .classpat .settingts etc files are created but they are not part of the original project
+to ignore these files we can use .gitignore file 
+
+Branches
+---------------
+When we create a local repo by default we create master branch 
+We can keep a single branch for each environmemnt
+For Prod we can use master branch similarly we can use development and stage branches for qa and dev 
+
+git branch --> display how many branches are there
+git branch branchname --> to create a branch 
+git checkout branchname --> to swap the branch 
+git branch -d branchname --> to delete a branch 
+
+git diff branchname --> to find differences b/w current branch and branch mentioned
+git merge branchname --> to merge the content of both branches 
+
+git checkout -b branchname --> create and switch branches using a single command
+
+git branch -r --> to view remote repository branches 
+
+git push alias-name Branch1 Barnch2..... to push local repo to multiple remote branches 
+
+git push alias-name --all --> push codes to all branches of local reo to remote repo 
+
+git branch -a --> displays both local and remore rep branches 
+
+We can create branches directly in the remote repo.. But they will not be directly present in our local repo 
+
+git push fcart :branchname --> to delete a branch from remote repo 
+
+Tags
+---------------------------
+While branches are mutable tags are immutable 
+Mutable -- Can be changed 
+As long as development is there we create branches Tags are created after Prod deployment 
+
+git tag --> list of tags 
+git tag tagname --> vreate a tag
+git tag -d tagname --> delete a tag 
+git push alias-name tag tagname --> push a tag 
+git push an tag --all tags are pushed 
+
+We should not switch branches before committing any file because the same untracked file will be reflected in the switched branch 
+To avoid this we need to take backup of working environment
+git stash --> used to take a backup and keep in temp location
+$ git stash save "logging Stage"
+git stash list --> list the backups 
+stash@{0}
+stash@{1}
+git stash apply --> apply the recent backup 
+git stash apply stash@{1} --> apply a particluar backup 
+git stash drop stash@{n} --> delete a particular backup
+git stash pop --> apply and delete recent one 
+
+git cherry-pick commitID --> get commits from 1 branch to other 
+4968bb3e83bef16f0e980064ae608f4b9f6733a1
+Switch to other branch then $ git cherry-pick 4968bb3e83bef16f0e980064ae608f4b9f6733a1
+
+git clone https://github.com/Kedhar-s-DevOps/Facebook.git --> This command downloads the data from remote repo to local repo 
+
+git clone we use only the 1st time to get the entire repo from remote repo 
+From the next time we use git fetch or git pull 
+remote to local repo --> git fetch alias-name bname
+local to working copy --> git pull alias-name bname 
+git pull --> remote to working copy 
+git pull = git fetch + git merge 
+git pull alias-name brname 
+
+Update a code on github
+use git fetch fcart master --> file will not be updated in remote still 
+now use git merge fcart/master --> now we can see updated file 
+
+git commit --amend -m "new commit messsge" --> to upodate the commit message 
+
+SSH keys
+---------------------------
+git@github.com:Kedhar-s-DevOps/Facebook.git
+if we have to use this Sh url instead of HTTPS we need to do some configs 
+ssh-keygen is command used to generate SSH keys 
+Once we run the command id_rsa and id_rsa.pub keys will be generated in the ~/.ssh/ directory 
+
+ssh-keygen 
+take id-rsa.pub from ~/.ssh/id_rsa.pub and paste it in Github under settings/sshkeys 
+ssh -T git@github.com --> to test the SSH connection
+git remote add surl git@github.com:Kedhar-s-DevOps/Facebook.git
+
+
+ssh-keygen -t dsa --> to create keys with different algorithm 
+
+ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCtH+qrSCNbIrcXs50ZFe0qGS0N73g4vK650OgDWw31zdZRO1L2PF6iR5bSvHiJ8Xnqs6sDKuEQku23vQRHtoJENJiTCS6bUlcALsGJ1MHcfdeMcMt8DAoPeryADmZCTSFQlZU815YIYkDGTfwe4BazW60hpEo26nGvlcfEjspXrkJcMeY8kFT9AnoEewGW+7GWXE0m4QolCHcKIslS7C8sFD7u9v0ln3txwvQBfr00u0hVrqjE/ko+zCD6IdGMdMdiktybH1dCnFlMqV7EvxLWKHfWI9MOej/VYr8TMAMG/esA/A4Bk743dvqPYEklj7rxuUNg3ZsjL0HOdXFN7m689uN5lomBRU7ltb06PZ4ZkG8AfK4AF4ilEpTtr9SZV4hyh886+B7QAr+oulMhL2RBJF70tiV3i+oJsvWZmrFLiUrKB/n7hSYjc28lbW5ut5vy3yCyLiZo01+OwQ3pDaVkIfap1Fgjl/Bf82vDpT/knDeehH9rs5mntMr2K7YHt8M= kedha@DESKTOP-U14VEPE
+
+PR --> Pull Request
+-------------
+done in the remote repo usually when 2 branches are not esactly same 
+Once create the pull request share the pull request url https://github.com/Kedhar-s-DevOps/Facebook/pull/1 
+
+git clone can get a repo from remote to local
+but to get the repo from remote to remote we use fork 
+
+Branching Strategy
+-------------------------------
+What are the branchez we created and used and the purpose of the branches 
+
+git rebase
+------------------
+integrate one branch to other just as "git merge" 
+If we commit multiple commits in 1 branch and we use merge all the commits will be transferred to this branch as 1 commit ID 
+but git rebase can do that using the unique commitID for every commit 
+
+README.md file
+------------------------------
+File where we can write the long description It is ike a help document 
+
+Git best practices
+-----------------------
+use branching stretegy and pull requests 
+committ once you finish the task 
+dont commit half done work 
+test code before commit 
+use git commands rather than GUI tools 
+avoid merge commits 
+
+HitHub API
+----------------------------
+It is an Application Programming Interface 
+We can write a shell script instead of doing everything manually 
+
+Build tools
+-----------------------
+Used to create package sincle we cannot deploy the code directly 
+Java --> Ant,maven,Gradle 
+.net --> NANT, MS build 
+C --> make
+python --> PyBuilder 
+
+
+
+
+

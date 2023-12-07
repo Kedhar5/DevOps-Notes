@@ -1,0 +1,203 @@
+To view the Installed shells: cat /etc/shells
+Current Shell : echo $SHELL
+How to switch to other Shells : /bin/sh
+Install new shell : sudo yum install ksh -y
+
+Shell Scripting is used to Automate the regular Manual works
+#!/bin/bash It is the starting line of ShellSCript.
+It represent which shell we are using. It is called SHEBANG LINE
+Execute ashell script : bash firstshellscript.sh
+When we get the errors we run the script in DEBUG mode
+EX:bash -x firstshellscript.sh
++ echo 'HELLO PEOPLE'
+HELLO PEOPLE
++ echo 'THIS IS MY 1ST SHELL SCRIPT'
+THIS IS MY 1ST SHELL SCRIPT
++ date
+Thu Nov 16 14:56:54 UTC 2023
++ echo 'IS TODAY'\''s DATE'
+IS TODAY's DATE
+
+To debug only few lines we can use set -x and set +x commands
+output will be as this
++ echo 'HELLO PEOPLE'
+HELLO PEOPLE
++ set -x
++ echo 'THIS IS MY 1ST SHELL SCRIPT'
+THIS IS MY 1ST SHELL SCRIPT
++ set +x
+Thu Nov 16 15:01:50 UTC 2023
+IS TODAY's DATE
+
+variable is a memory location where we can store the values
+System Defined Variables
+User defined variables
+env or printenv command is used to check system defined variables
+To change the system defined value we need to use export Command
+ex: export HISTSIZE=2000
+this command increases the History size to 2000
+
+In shell script there is no data type concept as present in C/C++
+no spaces should be given while defining variables
+ex: a=10 user=kedhar etc...
+
+Command Line Arguments
+Passing the arguments during run time like using SCANF in C program language
+
+Special Variable	Special Variable’s details
+$1 … $n	Positional argument indicating from 1 .. n. If the argument is like 10, 11 onwards, it has to be indicated as ${10},${11
+$0	This is not taken into the argument list as this indicates the “name” of the shell program. In the above example, $0 is “displayPositionalArgument.sh”
+$@	Values of the arguments that are passed in the program. This will be much helpful if we are not sure about the number of arguments that got passed.
+$#	Total number of arguments and it is a good approach for loop concepts.
+$*	In order to get all the arguments as double-quoted, we can follow this way
+$$	To know about the process id of the current shell
+$? and $!	Exit status id and Process id of the last command
+Input
+---------------------------
+echo $1
+echo $2
+echo $3
+echo $0
+echo $@
+echo $#
+echo $*
+echo $$
+echo $?
+echo $!
+O/P
+----------------------------
+arg1
+arg2
+arg3
+shellprac.sh
+arg1 arg2 arg3
+3
+arg1 arg2 arg3
+650375
+0
+
+string
+-----------
+Group of characters enclosed in single/double quote
+'' ""
+
+Arithmetic operator
+--------------------------
+we need to use the keyword expr to get the output
+expr 2 + 3
+expr 3 - 2
+expr 2 \* 3
+expr 10 / 2
+expr 20 % 3
+
+We need to use \* for multiplication because * will be considered as a special character
+and by using \ we can get that as escape character
+
+`` is used to print everything in single line
+echo addition of 2 and 3 is: `expr 2 + 3`
+addition of 2 and 3 is: 5
+
+User interactive mode
+------------------------------
+echo "insert your name:"
+read name
+echo $name
+
+insert your name:
+kedhar
+kedhar
+Array concept
+--------------------------
+echo " This is a array concept"
+read -a devopstools
+echo "The devops tools are" ${devopstools[*]}
+echo "the second devops tools is" ${devopstools[1]}
+if we donot assign any variable to array it will work 
+But to get the o/p we need to use the variable $REPLY
+read -p : it will display the input which we are giving
+read -sp it will not print the info which we are giving 
+This can be used for Sesitive information/Protected info
+> --. Standard oupput
+>> -- Append standard ouptput to the same file
+ex: ls > lsopt.txt
+ls data will be stored in .txt file
+then if we use date > lsopt.txt the data will be overridden
+To avoid this and to append data we use >>
+ex: date >> lsopt.txt
+
+File descroptors
+0 standard i/p
+1 standard o/p 
+2 standard err 
+
+2>&1 It means it will redirect bioth o/p and errors
+
+to redirect both o/p and error to different files
+sh script.sh 2>op.sh 1>er.sh 
+FInd a file exists in current directory
+-----------------------------------------
+echo "enter the bfile name"
+read a
+if [ -f $a ]
+then
+        echo "file is present"
+
+else
+        echo "file is not present"
+fi
+
+For loop
+--------------------
+echo "for loop demo"
+
+for ((i=1;i<=10;i++))
+do
+echo $i
+done
+
+echo "for loop demo done"
+
+While Loop
+--------------------
+echo "While loop demo"
+a=1
+
+while [ $a -le 5 ]
+do
+        echo $a
+        a=`expr $a + 1`
+done
+echo "while loop demo done"
+
+Switch case
+----------------------
+echo "switch case demo starts"
+
+case $1 in
+
+start)
+echo "starting sonar server"
+echo "started the server"
+;;
+stop)
+echo "stopped the server"
+;;
+restart)
+echo "restarted the server"
+;;
+*)
+echo "please enter correct value"
+echo "Usage : start|stop|restart"
+;;
+esac
+
+Functions
+-------------------------
+add(){
+        expr 1 + 2
+}
+sub(){
+        expr 1 - 2
+}
+add
+sub

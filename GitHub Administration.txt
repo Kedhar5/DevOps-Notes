@@ -1,0 +1,22 @@
+GitHub
+----------------------
+Source code can not be shared via communicators such as Teams, Slack, Skype etc
+We can use Source Code Management tools to send the code like GitHub GitLab BitBucket
+Repository is a place where we can keep the source code
+
+GitHub Enterprise is used in offices so that outers can not access the source code repositories
+
+a) Create an organisation
+https://github.com/Kedhar-s-DevOps
+
+b) Create a Repository
+https://github.com/Kedhar-s-DevOps/Facebook --> Public repository
+https://github.com/Kedhar-s-DevOps/flipkart --> Private repository
+git@github.com:Kedhar-s-DevOps/flipkart.git --> SSH url
+
+c) Create the Teams 
+https://github.com/orgs/Kedhar-s-DevOps/teams/facebook-devteam
+
+d) Add users to Teams
+
+e) Provide the repository access to the Team

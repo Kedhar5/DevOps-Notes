@@ -1,0 +1,79 @@
+Tomcat
+--------------------
+Tomcat is a opensource , java based web application server 
+We can deploy only the war files 
+
+Tomcat Server Directory Structure
+--------------------------------------
+bin: Contains all the binary files 
+startup.sh --> for linux server 
+startup.bat --> for windows OS 
+shutdown.sh catalina.sh version.sh 
+shutdown.bat catalina.bat version.bat 
+
+conf: Contains the configuration files 
+server.sh tomcat-users.xml 
+
+lib: Libraries 
+jar files will be present 
+
+logs: by default it is empty 
+once we start it will create some log files 
+catalina.out manager.log hostmanager.log 
+
+webapps: All the war files are stored here. All the apps will be stored here  
+
+work: by default it is empty. Once we start Tomcat Server it will create some directories here and they are used when application is running 
+
+temp: It ia temporary directory by default it will be empty 
+
+Tomcat Server installation
+----------------------------
+JDK/JRE anything is good for Tomcat installation 
+
+access tomcat server from laptop 
+https://PublicIP:8080
+https://3.109.144.181:8080
+
+/opt/apache-tomcat-9.0.83/conf
+create a user tag in this tomcat-users.xml to give access to Application Manager 
+for host manager access give /opt/apache-tomcat-9.0.83/webapps/host-manager/META-INF comment valve tag in context.xml
+
+App Servers            Web servers
+-------------------    -------------------------
+						Oracle http server
+						ngnix
+						Apache
+						http
+						oracle I planet 
+						IBM http server 
+						
+Deploy backend code		deploy static/front end code 
+
+						Web servers are used for load balancing purposes 
+
+13.235.99.37 :ipv4
+ec2-user :username 
+kedhar :pwd
+
+copy war file to tmp and then access it since root directories cannot be acccessed
+
+We can deploy the app by copying the war file to webapps directory
+or we can deploy in tomcat server directly 
+
+Install httpd server
+--------------------------
+yum install httpd -y
+service httpd status 
+service httpd start
+
+while installing apache a user called system user is automatically created 
+/var/www/html/ is the directory to write html content
+it can be accessed by publicIP
+http://pubIP
+to access aparticular html file http://publicIp/filename
+
+
+Stop the instnace while logging out 
+
+
