@@ -1,8 +1,31 @@
-SonarQube
---------------------
+SonarQube/ Sonar(earlier name)
+---------------------------------
 Open source, Java based code quality management tool 
 Code Review: Going throufgh source code line by line 
 To check whether devs followed standards or not 
 
 Instead of going through line by line of a code manually SonarQube does it atomatically 
 We can use this for other languages instead of Java also 
+Vera code, HP fortyfy are similar tools 
+
+SonarQube can be dwnlded as zip file then extrcated and used 
+
+It will generate report in from of html/pdf
+Supports multiple languages 
+Cross-platform software 
+Supports multiple databases (mySQL,postgreSQL etc..)
+
+For languages like COBOL ABAp C C++ etc we need to have license and buy commercial version
+FOr Java JS HTML JSP PHP Python etc license is not needed since they are open source 
+
+SonarQube installation
+-------------------------
+Java --> Pre requisite
+SonarQube inbuilt has a database called HQ database 
+
+Architecture
+------------------------------
+SonarQube Scanner / SonarQube Server
+Scanner scans the source code and generates teh report and gives it to server 
+Scanner classifies the report to Bug Vulnerabilities Codesmells
+After that report is stored in a database 
