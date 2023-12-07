@@ -1,1 +1,8 @@
-s
+SonarQube
+--------------------
+Open source, Java based code quality management tool 
+Code Review: Going throufgh source code line by line 
+To check whether devs followed standards or not 
+
+Instead of going through line by line of a code manually SonarQube does it atomatically 
+We can use this for other languages instead of Java also 
