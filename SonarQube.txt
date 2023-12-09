@@ -42,3 +42,47 @@ to access the SonarQube server http://PublicIP:9000
 Initially when we access the Sonar server we will not be admitted
 We need to enable the ports in security goups then access the server using above address
 Default credentials are username:admin pswd:admin 
+
+
+When we try to run sonar.sh file using bash sonar.sh start command it is not running 
+Because we have tried from root user and we try to run the same from sonar user because temp directory is created and sonar user doesnt have access and normal user trying to create the same
+
+Whenever you are not able to see the status of sonar as active you need to check because you might have tried to run sonar.sh from root user 
+Since root user cant run sonar.sh sonar cant run and temp/ directory is created 
+Since this sonar also tries to create temp directory you cant start the sonarQube
+Delete the temp directory then run sonar.sh then it will execute 
+temp directory willbe present in sonarqube directory and we donot have access to delete it
+So we use "sudo rm -rf temp/"
+
+										mvn clean sonar:sonar 
+												  plugInname:Goalname 
+
+the above command is used to generate the report for project
+we need to run the code in Directory where pom.xml is present
+Also we need to modify  <sonar.host.url>http://15.206.75.213:9000/</sonar.host.url> 
+						<sonar.login>admin</sonar.login>
+						<sonar.password>Kedhar@5</sonar.password>
+These tags need to modified according to the server details
+
+a single SonarQube server can be used for n number of projects
+
+Configuring IP username and pwd in the pom.xml file is not a good practise 
+To avoid this we can use Token 
+Token Generation
+--------------------
+My account --> Security --> Generate token
+squ_44400e8fc4b4c33b10e3170e5d37b5b8fce324cf
+
+We can comment the password tag in pom.xml
+<sonar.login> tag mention the token generated 
+Save the token as it will be visible only once 
+
+"npm run sonar" --> to execute nodeJS projects 
+yum install nodejs -y 
+nodejs is required torun this npm command 
+for java project we configure in pom.xml file 
+for JS sonar-project.js 
+
+<sonar.host.url>http://15.206.75.213:9000/</sonar.host.url>
+                <sonar.login>squ_44400e8fc4b4c33b10e3170e5d37b5b8fce324cf</sonar.login>
+                <!-- <sonar.password>Kedhar@5</sonar.password> -->
