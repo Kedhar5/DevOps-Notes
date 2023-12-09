@@ -15,7 +15,7 @@ Supports multiple languages
 Cross-platform software 
 Supports multiple databases (mySQL,postgreSQL etc..)
 
-For languages like COBOL ABAp C C++ etc we need to have license and buy commercial version
+For languages like COBOL ABAP C C++ etc we need to have license and buy commercial version
 FOr Java JS HTML JSP PHP Python etc license is not needed since they are open source 
 
 SonarQube installation
@@ -29,3 +29,16 @@ SonarQube Scanner / SonarQube Server
 Scanner scans the source code and generates teh report and gives it to server 
 Scanner classifies the report to Bug Vulnerabilities Codesmells
 After that report is stored in a database 
+
+After installing sonarQube it will not run on root user 
+we create a normal user and give the user root access and then switch the user 
+
+in the Sonar user go to opt directoty and bin and you find a file sonar.sh
+by running the script u can start the sonarQube 
+In Linux if we run anything we will get a ProcessID
+default port number is 9000
+to access the SonarQube server http://PublicIP:9000
+
+Initially when we access the Sonar server we will not be admitted
+We need to enable the ports in security goups then access the server using above address
+Default credentials are username:admin pswd:admin 
