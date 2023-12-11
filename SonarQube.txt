@@ -82,6 +82,8 @@ yum install nodejs -y
 nodejs is required torun this npm command 
 for java project we configure in pom.xml file 
 for JS sonar-project.js 
+npm install --> to install all modules 
+
 
 <sonar.host.url>http://15.206.75.213:9000/</sonar.host.url>
                 <sonar.login>squ_44400e8fc4b4c33b10e3170e5d37b5b8fce324cf</sonar.login>
