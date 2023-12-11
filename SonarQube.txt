@@ -38,6 +38,8 @@ by running the script u can start the sonarQube
 In Linux if we run anything we will get a ProcessID
 default port number is 9000
 to access the SonarQube server http://PublicIP:9000
+username: admin
+Password: Kedhar@5
 
 Initially when we access the Sonar server we will not be admitted
 We need to enable the ports in security goups then access the server using above address
@@ -84,7 +86,22 @@ for java project we configure in pom.xml file
 for JS sonar-project.js 
 npm install --> to install all modules 
 
-
+Thse particular need to be added in properties directory to get the report into a paricular sonarQube server 
 <sonar.host.url>http://15.206.75.213:9000/</sonar.host.url>
                 <sonar.login>squ_44400e8fc4b4c33b10e3170e5d37b5b8fce324cf</sonar.login>
                 <!-- <sonar.password>Kedhar@5</sonar.password> -->
+				
+Quality Profiles
+-------------------
+Set of rules that need to be applied during an analysis 
+Sonar way is the default quality profile name 
+
+We can create our own QP to bypass the rules 
+
+Quality Gate
+----------------
+Tab where we enter the conditions that need to be applied to that set of code 
+both QP & QG are given to DEvOps team by developers 
+
+SonarQube server integration with PostgreSQL will be on YT -mss channel 
+
