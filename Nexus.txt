@@ -1,0 +1,38 @@
+Nexus
+----------------------
+Nexus is a Open souce Java based artifactory repo.. which can be used to store and retrieve the built artifacts(Packages- jar/war/ear) whenever required
+
+
+Package
+-----------
+java - war/ear/jar
+Docker - Docker images 
+
+
+Artifactory Repository
+-----------------------
+When we create a package that need to be stored in a artifactory repository.
+In future to use that package as a reference.
+
+Nexus is also called "Sonartype Nexus"
+Jfrog Artifactory is another similar tool 
+
+Difference b/w Github and Nexus
+-------------------------------
+GitHub is for source code management. Used to manage the source code
+Nexus is artifactory repository which can manage the built artifacts 
+
+Java 11 ins not supported for Nexus we need to install Java 8
+Apart from Maven we can we JDK/JRE for every tool 
+For Maven we just use JDK 
+
+Just like SonarQube minimum requirement is 4GB RAM 
+Nexus & SonarQube cannot be run on the same server.. Because at a time both cant run since the requirement is more than 7GB for both 
+
+Install java 8 sudo yum install java-1.8.0-amazon-corretto-devel 
+install wget 
+wget 
+
+acess Nexus server using 8081 port number
+http://PublicIp:8081 
+
