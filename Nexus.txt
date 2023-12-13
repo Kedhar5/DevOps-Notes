@@ -35,4 +35,14 @@ wget
 
 acess Nexus server using 8081 port number
 http://PublicIp:8081 
+For nexus serber the default password is dynamic the password addreess will be given to u by the server 
 
+Change port number for applications
+-----------------------------------
+Tomcat --> server.xml
+SonarQube --> conf/sonar.properties
+nexus --> nexus/default properties 
+
+Change port number in /opt/nexus/etc/nexus-default.properties 
+after changing the port number we need to restart the service  
+sudo service nexus restart 

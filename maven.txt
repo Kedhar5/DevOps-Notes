@@ -89,7 +89,8 @@ mvn clean package -Dmaven.test.skip=true
 package name
 /maven-standalone-application-0.0.1-SNAPSHOT.jar
 artID.Vno.jar 
-after package build target directory is created and .jar is created 
+
+After the build is successful the .war or any packlage file will be present in the target directory of the application folder
 we execute mvn commands where the pom.xml is present 
 mvn clean -- Prev build files will be deleted
 
