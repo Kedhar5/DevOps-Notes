@@ -7,5 +7,6 @@ Until now I have Uploaded notes of
 5.Apache Maven 
 6.Apache Tomcat
 7.SonarQube 
+8.Sonartype Nexus
 
 ps:This README file will be updated very frequently to let know what are the new additions to the learning curve
