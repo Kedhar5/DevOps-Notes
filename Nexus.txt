@@ -33,6 +33,8 @@ Install java 8 sudo yum install java-1.8.0-amazon-corretto-devel
 install wget 
 wget 
 
+
+
 acess Nexus server using 8081 port number
 http://PublicIp:8081 
 For nexus serber the default password is dynamic the password addreess will be given to u by the server 
@@ -46,3 +48,86 @@ nexus --> nexus/default properties
 Change port number in /opt/nexus/etc/nexus-default.properties 
 after changing the port number we need to restart the service  
 sudo service nexus restart 
+
+Even though nexus is running we need to run the below commands to start the nexus server 
+[nexus@ip-172-31-38-240 bin]$ sudo systemctl start nexus
+[nexus@ip-172-31-38-240 bin]$ sudo systemctl status nexus
+
+settings --> create repo --> maven (hosted) --> repo name 
+we chose maven2(hosted) type repo because we chose maven java project 
+If it is a nodeJS project we use npm and etc..
+Based on language of project we select the repository type 
+
+To change any configs of repositories Settings --> 
+under URL column repo URL will be present 
+http://13.233.192.12:8081/repository/Flipkart-release/
+http://13.233.192.12:8081/repository/Flipkart-snapshot/
+Then we need to configure Java projects with the given URL's 
+
+In a java project in pom.xml file we need to confugure the URL's 
+Configurations are done under <ditributionManagement> tag
+<ditributionManagement> </ditributionManagement>
+after configuring we can build the maven java project mvn clean package 
+but we are uploading so we use mvn clean deploy 
+Be sure to change username, password ,nexus URL in server.xml file  
+If we donot change we get error 401 status code unauthorized which means credentials issue 
+in /opt/apache-maven/conf/servers.xml file add the below tag in <servers> tag  
+id user name pwd should match with ur nexus server 
+
+<server>
+      <id>nexus</id>
+      <username>admin</username>
+      <password>Kedhar@5</password>
+    </server>
+
+We have uploaded both release and snapshot but only snapshot is working 
+The version tag contains SNAPSHOT keyword
+If we deploy again it is not going to upload because of error "Repository does not allow updating assets: Flipkart-release (400)"
+It is because the version name is same so we need to update the package and override the existing one 
+to update that Server administration --> hosted tab --> Deployment policy should be Allow redeploy 
+
+If we redploy these tabs will be modified automatically under .war file 
+Blob created	Thu Dec 14 2023 15:34:37 GMT+0530 (India Standard Time)
+Blob updated	Thu Dec 14 2023 15:41:10 GMT+0530 (India Standard Time)
+
+Instead of configuring this we can alternatively change the version name in pom.xml
+
+So we can either change the version number in pom.xml or else we can change the configuration as Allow Redeploy directly in the nexus server 
+If we allow redepoly existing build will be overridden so we change the version names so that we can keep the artifacts intact 
+
+In the <version tab> if we just use n.n.n we upload to releases 
+If we use n.n.n-SNAPSHOT in <version> tag we upload to releases 
+
+Releases wont be deployed if the version name is same 
+SNAPSHOTS can deployed using the same version name because it stored as Sn-1 sn-2 etc...
+
+http://13.233.192.12:8081/repository/kedhar-remoterepo/
+This repo is used to store jar war ear files we can use both SNAPSHOTS and releases
+
+To use this jar file we upload the file into a remote repo and then take the dependency tag 
+http://13.233.192.12:8081/repository/kedhar-remoterepo/
+<dependency>
+  <groupId>com.mt</groupId>
+  <artifactId>mail</artifactId>
+  <version>1.0.0</version>
+</dependency>
+in pom.xml file we configure both dependency ands url 
+dependency can be configured under dpendencies 
+URL can be configured as 
+<repositories> 
+	<repository>
+		<id>nexus</id>
+		<url>http://13.233.192.12:8081/repository/kedhar-remoterepo/</url>
+	</repository>
+</repositories>
+If we need to create the package and download the dependencies we should also use mirrors tag 
+<mirror>
+      <id>nexus</id>
+      <mirrorOf>external:http:*</mirrorOf>
+      <url>http://13.233.192.12:8081/repository/kedhar-remoterepo/</url>
+      <blocked>false</blocked>
+    </mirror>
+
+So we create the repositories and upload the dependency and when we build package again dependencies can be downloaded from custom repositories 
+
+
