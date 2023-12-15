@@ -63,10 +63,10 @@ C;\\Users/kedhar/.m2/repository --> windows
 b)Maven Central Repo 
 It is provided by Maven Community 
 It has large number of repositories called as libraries 
-This Repo comes to play ehwn Maven doesnot find libraries in Local repositories
+This Repo comes to play when Maven doesnot find libraries in Local repositories
 
 c)Remote Repo 
-Enterpriseusually has their own repos for their projects. 
+Enterprise usually has their own repos for their projects. 
 They are different from local repos and are maintained in a different server 
 They are developed within the organization 
 
@@ -96,7 +96,6 @@ mvn clean -- Prev build files will be deleted
 
 mvn test --> to run only tests
 to change the default repo we need to modify settings.xml in conf directory  in maven home directory 
-
 <localRepository>/root/mavencustomlocalrepo/</localRepository>
 
 mvn clean package -DskipTests --> test cases are skipped

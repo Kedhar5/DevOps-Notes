@@ -111,16 +111,15 @@ http://13.233.192.12:8081/repository/kedhar-remoterepo/
   <artifactId>mail</artifactId>
   <version>1.0.0</version>
 </dependency>
-in pom.xml file we configure both dependency ands url 
-dependency can be configured under dpendencies 
-URL can be configured as 
+after uploading the dependency we need to configure the repository tag in pom.xml and mirror tag in conf/settings.xml as below 
+Only if we configure these both we can be able to create te package using the dependencies in the remote repository 
 <repositories> 
 	<repository>
 		<id>nexus</id>
 		<url>http://13.233.192.12:8081/repository/kedhar-remoterepo/</url>
 	</repository>
-</repositories>
-If we need to create the package and download the dependencies we should also use mirrors tag 
+</repositories> 
+
 <mirror>
       <id>nexus</id>
       <mirrorOf>external:http:*</mirrorOf>
@@ -128,6 +127,42 @@ If we need to create the package and download the dependencies we should also us
       <blocked>false</blocked>
     </mirror>
 
-So we create the repositories and upload the dependency and when we build package again dependencies can be downloaded from custom repositories 
+So we create the repositories and upload the dependency and when we build package again dependencies can be downloaded from central repositories 
 
+Go to projects
+modify pom.xml
+then modify settings.xml 
+Proxy
+-------------------
+Instead of getting dependencies from Centreal to local repo to avoid viruses we use proxy repo 
+<url>http://13.200.237.226:8081/repository/kedhar-proxy/</url>
+THis has to be configured in repositories tag
+After this go to conf directory in OPT and then in settings.xml under mirror tag this url need to configured
+then we create the package and the dependencies are downloaded to proxy repo 
+Since we mave created the maven custom local repo everytghing will be stored there
+if we delete any file and try to build package then we might face error as dependency is not available in proxy repo 
+To avoid this situation we use group repository
 
+Group Repo 
+---------------------
+Group of repos from where we can get the dependencies 
+settings --> create repo --> maven2(group)
+While creating group repo we need to add all the repos which are necessary for building that package then we need to configure same as proxy repo 
+Since we have grouped all repos and then build the packages we will not get the error 
+Even though dependencies are not there in proxy repo nexus will download dependencies from group repo 
+So the package will be built successfully
+
+the working is similar we need to configure the url in both pom.xml and settings.xml using the group link 
+
+DevOps admin roles
+---------------------
+using repositories tab we can create repositories
+While creating repos we create blob stores to write the content 
+Whatever data we upload it will be stored in blob stories -- default is the default blob 
+S3 --> simple storage service is a type of blob 
+If we create a blobstore wile creating repos we need to select a specific blob store for creating every repo 
+
+Cleanup policies can be used to clean up the repositories 
+We can set particular setting like when the artifact can be cleaned up after being deployed 
+
+Instead of creating users in each tool like sonarQube nexus Tomcat etc in real time we use LDAP 
