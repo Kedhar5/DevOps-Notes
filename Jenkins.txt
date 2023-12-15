@@ -1,0 +1,68 @@
+Jenkins
+---------------
+GitHub --> Source code Manager
+Maven --> build tool
+Tomcat --> Application server 
+SonarQube --> Source code quality management tool 
+Nexus --> Artifactory repository 
+Jenkins --> CI/CD tool 
+
+Jenkins is a open source, Java based Continuous Integartion tool 
+It is also called as HudSon
+In 2011 a community was formed called Jenkins community and they built a tool called Jenkins 
+
+It is built on Java but it supports many other languages 
+
+CI --> Process of automating the build and run the unit test cases as soon as DEV push the code to source code management.
+In CI there is no Deployment Process
+
+CI benefits 
+--------------------
+Immediate Bug detection 
+No Integration step in SDLC 
+Deployable package at any point
+We can record the evolution of the project
+
+Continuous Delivery
+---------------------
+Here we need to manually trigger the deployment 
+We are using this for External applications
+
+Continuous Deployment
+----------------------
+All the environments are automated 
+We are using this for Internal Applications
+
+Using Jenkins we can Integrate version control system (GitHub, GitLab,BitBucket)
+Can generate the test reports 
+JaCoCo --> Java Code Coverage is a plugin used by Jenkins to do JUnit test cases 
+This plugin can also stop the deployment 
+If the Code coverage is <80% then Jenkins can stop deployment 
+Push the builds to Artifactory repository 
+can deploy directly to Prod or test 
+Can notify to stake holders regarding success/failure of build 
+
+Benefits of Jekins 
+-----------------------
+It is Open source 
+Easy to install and minimal configurations 
+Has over 1800+ plugins 
+Built using so works on all major systems 
+Good Documentation and easy for beginners 
+
+jenkins is Community Edition 
+CloudbeesJenkins  is enterprise edition
+
+Jenkins Installation
+---------------------------
+Java 11 is Pre requisite 
+Min 2GB RAM is needed just to install Jenkins but we need to integrate so we need atleast 4GB RAM 
+
+yum install jenkins 
+then we need to enable jenkins service 
+systemctl enable jenkins --> to enable jenkins 
+systemctl start jenkins --> to start Jenkins 
+
+to access jenkins http://publicIP:8080
+username: kedhar
+password: Kedhar@5

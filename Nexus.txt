@@ -23,7 +23,7 @@ GitHub is for source code management. Used to manage the source code
 Nexus is artifactory repository which can manage the built artifacts 
 
 Java 11 ins not supported for Nexus we need to install Java 8
-Apart from Maven we can we JDK/JRE for every tool 
+Apart from Maven we can use JDK/JRE for every tool 
 For Maven we just use JDK 
 
 Just like SonarQube minimum requirement is 4GB RAM 
@@ -33,11 +33,9 @@ Install java 8 sudo yum install java-1.8.0-amazon-corretto-devel
 install wget 
 wget 
 
-
-
 acess Nexus server using 8081 port number
 http://PublicIp:8081 
-For nexus serber the default password is dynamic the password addreess will be given to u by the server 
+For nexus server the default password is dynamic the password addreess will be given to u by the server 
 
 Change port number for applications
 -----------------------------------
@@ -113,6 +111,8 @@ http://13.233.192.12:8081/repository/kedhar-remoterepo/
 </dependency>
 after uploading the dependency we need to configure the repository tag in pom.xml and mirror tag in conf/settings.xml as below 
 Only if we configure these both we can be able to create te package using the dependencies in the remote repository 
+pom.xml
+---------------------
 <repositories> 
 	<repository>
 		<id>nexus</id>
@@ -120,6 +120,8 @@ Only if we configure these both we can be able to create te package using the de
 	</repository>
 </repositories> 
 
+settings.xml
+--------------------------------
 <mirror>
       <id>nexus</id>
       <mirrorOf>external:http:*</mirrorOf>
