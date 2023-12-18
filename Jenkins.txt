@@ -51,18 +51,44 @@ Built using so works on all major systems
 Good Documentation and easy for beginners 
 
 jenkins is Community Edition 
-CloudbeesJenkins  is enterprise edition
+CloudbeesJenkins is enterprise edition
 
 Jenkins Installation
 ---------------------------
 Java 11 is Pre requisite 
 Min 2GB RAM is needed just to install Jenkins but we need to integrate so we need atleast 4GB RAM 
 
+Jenkins Installation
+--------------------
 yum install jenkins 
 then we need to enable jenkins service 
-systemctl enable jenkins --> to enable jenkins 
-systemctl start jenkins --> to start Jenkins 
+					systemctl enable jenkins --> to enable jenkins 
+					systemctl start jenkins --> to start Jenkins 
 
 to access jenkins http://publicIP:8080
 username: kedhar
 password: Kedhar@5
+
+Since we have enabled Jenkins as a service even if we donot use the start command in root server just by starting the server we can access it 
+
+How to can create a Job in Jenkins
+-----------------------------------
+To start the integration all the application servers need to be up and running 
+jenkins SonarQube Tomcat Nexus need to be up 
+
+We need to get the repo link from the dev and paste it in jenkins 
+Then add the Build steps
+
+When we configure maven with Jenkins and run the build and still it is failed 
+Because Maven is not installed in Jenkins server it is able to fetch the details from github but not able do do the build 
+Installation: Dashboard --> manage jenkins --> add maven tab this has to be done on web we need to install git in Linux server 
+This is a single time setup
+After this go back to the job and configure 
+In build steps add maven version and save and build 
+after this the build is successful we can check the status in console output 
+package built is stored here 
+Building war: /var/lib/jenkins/workspace/flipkart-dev/target/maven-web-application.war
+/var/lib/jenkins --> jenkins home directory 
+
+if we give sonar:sonar gole the report will be generated 
+But we need to configure SonarQube details in pom.xml file we can modify the credentials in GitHub 
