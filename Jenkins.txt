@@ -92,3 +92,50 @@ Building war: /var/lib/jenkins/workspace/flipkart-dev/target/maven-web-applicati
 
 if we give sonar:sonar gole the report will be generated 
 But we need to configure SonarQube details in pom.xml file we can modify the credentials in GitHub 
+
+Jenkins Integration to GitHub, maven , sonarQube ,nexus , Tomcat
+------------------------------------------------------------------
+With GitHub install git in Linux server
+Sudo yum install git 
+* credentials are not mandatory for public repositories 
+* After getting code from GitHub we need to build package 
+Maven 
+------
+go to Job --> configure --> Invoke maven targets --> then we give the goals 
+Since maven is not installed in Jenkins server build wont be successful 
+maven installation:-- dashboard --> tools --> maven installation tab --> version 
+go to our job --> select the maven version --> Build now --> package will be created 
+
+SonarQube 
+---------------
+To build the sonar report we need to use sonar:sonar goal 
+We need to update the sonar creds in pom.xml in sonar.host.url mention the url and in sonar.login mention the key 
+Go to the job --> build now --> package will b ecreated successfully 
+
+nexus 
+----------
+After the report creation we need to upload the war file to Artifactory repository 
+to do this we se the deploy goal 
+nexus installation:-- take the release and SNAPSHOT link from nexus repo and in pom.xml file in the distribution management tag attach them both 
+then we need to configure nexus credentials in settings.xml file 
+the following tag needs to be included in the settings.xml file 
+<server>
+      <id>nexus</id>
+      <username>admin</username>
+      <password>Kedhar@5</password>
+    </server>
+
+to find the settings.xml file we need to use the find command in jenkins server 
+find / -name settings.xml 
+
+In the servers tag upload the above tag and build now the artifact is successfully uploaded now 
+
+Tomcat
+------------------
+After theat we need to deploy the application to Tomcat server
+We need to use deploy to container plugin to do this
+Installation:-- Dashboard --> manage jenkins --> plugins --> available plugins (deploy to container) --> install
+Then we go to job and in configure --> Post build action tab --> deploy war/ear to container --> add tomcat URL username / pwd here and build now 
+Even then it wont be succesful becuase fro kedhar user we have given admin-gui manager-gui roles
+to deploy the application to tomcat server we need to give manager-script role also in the tomcat-users.xml file 
+Now build now and the application is deployed successfully 
