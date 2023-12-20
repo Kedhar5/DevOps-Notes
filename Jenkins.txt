@@ -139,3 +139,100 @@ Then we go to job and in configure --> Post build action tab --> deploy war/ear 
 Even then it wont be succesful becuase fro kedhar user we have given admin-gui manager-gui roles
 to deploy the application to tomcat server we need to give manager-script role also in the tomcat-users.xml file 
 Now build now and the application is deployed successfully 
+
+Instead of triggering manually we can automate the process using 1 of the 3 methods
+1.pool SCM --> started by SCM change
+2.Build periodically  --> started by timer 
+3.GitHub Webhook
+http://PublicIP:8080/github-webhook/ we need to add this in Github and we need to enable webhook url in Jenkins job
+
+Instead of using public Ip we can PrivateIp since it is static in the source code
+To access the web server we need to use private server 
+
+We can keep only few builds and dicard the rest option is there in configure tab in the Job
+For Junit report we can use JaCoCo plugin for this we need to instaal the plug in
+
+Slack notification
+-----------------------
+Job name --> configure --> Slack tab --> add #channel-name --> Build now 
+we can use this option so that instead of using the default channel 
+Slack integration is a one time activity 
+
+Jenkins Directory Structure 
+------------------------------
+/var/lib/jenkins is the Jenkins home directory 
+In jenkins home directory we find config.xml ehich stores the info of the jenkins installed 
+jobs 
+---------
+This directory has the details of the jobs we have created 
+Create a ne job from existing one 
+Job name --> configure --> New item --> job name and copy from details 
+
+in lInux server in var/lib/jenkins/jobs directory 
+	
+	nextBuildNumber has the CurrentBuildNumber+1 value 
+		if we have built the job 5 time it will be 6
+
+	builds is other directory in the jobs 
+		It has all the builds information
+		It also has the list of builds if in Jenkins application we keep limit as 5 only 5 builds will be present
+		It has change.xml file which shows the changes from the build to current one
+		
+	config.xml 
+		This file has all the configurations of the job we are in 
+		This file is different compared to config.xml in jenkins home directory which has jekins installation and management details 
+
+Workspace 
+----------------
+This directory contains all the jobs source code 
+What ever job we created it will create 2 directories
+ex: flipkart-dev --> It has all the source code 
+	flipkart-dev@tmp --> it is temp directory it deesnt have anything
+
+plugins 
+--------------
+this directory has all the installed plugins details 
+
+users
+-------
+this directory has all the users information 
+users.xml 
+
+logs 
+------
+keep the data logs 
+
+secrets
+------
+keeps all the sensitive info 
+
+tools 
+--------
+All the softwares what we installed using tools option will b present in this directory 
+
+updates 
+----------
+any updates are available for installed plugins will be available here 
+
+config.xml
+-----------
+<useSecurity> tag by default is true 
+if we make it false it will not ask credentials for logging in to Jenkins 
+
+
+maven based project
+-----------------------
+using maven project type instead of Freestyle Project because it will support only maven projects 
+Using Freestyle project we can create jobs for any of the Jenkins supported languages 
+But with Maven project type we can create only maven jobs
+Maven project type has some extra features 
+	Automatically it will select maven version unlike freestyle 
+	There is also extra options like Run only if build is successful/failed/regardless 
+	Also the performance is better compared to freestyle 
+
+maven integration plugin is needed to build this kind of project 
+then Dashboard --> Job name NEW ITEM --> ITEM name --> maven project 
+
+
+
+
