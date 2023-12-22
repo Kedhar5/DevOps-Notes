@@ -162,6 +162,7 @@ Jenkins Directory Structure
 ------------------------------
 /var/lib/jenkins is the Jenkins home directory 
 In jenkins home directory we find config.xml ehich stores the info of the jenkins installed 
+
 jobs 
 ---------
 This directory has the details of the jobs we have created 
@@ -233,6 +234,68 @@ Maven project type has some extra features
 maven integration plugin is needed to build this kind of project 
 then Dashboard --> Job name NEW ITEM --> ITEM name --> maven project 
 
+Plug-in Management
+------------------------
+Deploy to Container --> deploy a project into Tomcat server 
+Deploy Weblogic --> Deploy app to WebLogic server
+Websphere deployer -->
+Maven integration --> to create a maven project 
+safe restart --> if we dont have access to linux server we use this plugin to restart Jenkins 
+	http;//PublicIP:8080/safeRestart is used to restart Jenkins server 
+	http;//PublicIP:8080/restart these two options can be used to restart the server 
+	the difference between both paths is 2nd path restarts forcefully and 1st one will wait until all jobs will complete 
+	If the user can see manage Jenkins option he has admin access or else he is not having access 
+	Only user having admin access can access these URL's 
+Next Build Number --> We can change the next build number rather than using the default one 
+	this option will be available in Job level as set next build number or in the Dashboard 
+	In case if a server is crashed and after maintenance if we want to continue from Prev build number we can use this plugin 
+JaCoCo --> for Junit test case report 
+SSH Agent --> 
+Email extension --> For sending emails 
+SonarQube scanner --> integrate sonarQube with jenkins 
+	Audit trail --> find out the traces of activities done by users 
+	This plugin details can be seen in jenkins configurations details page 
+	manage jenkins --> system --> Audit trail --> add log(loggers) --> name(audittrail.log), Size of file in MB , log file count
+	In Linux server var/lib/Jenkins --> We can find the content of the log file in this directory 
+	New item --> name is run the shell script --> build steps (execute shell) give the shell commands there 
+	even if u delete the job the log will be tracked 
+Job configuration history --> restoring the job which is deleted 
+	This option will be available in the Dashboard 
+Schedule build --> Run a job at a particlar time for a single time 
+	Schedule a build option will be available at the end of the job name in Dashboard 
+	When we click on the calander symbol we can build the job at any particular time 
+Blue Ocean --> Open blue ocean option will be available in dashboard 
+	We can see the pipelines which we have built in blue ocean 
+	If we want to create a job New Pipeline --> Choose the SCM --> Give the token and connect to the SCM 
+	This plugin gives a new look to Jenkins and if we wish we can go back to classic model
+Publish over SSH --> will be discussed in Docker 
+ThinBackup --> will be discussed in Jenkins Backup
+Build name setter --> Job --> configure --> Set Buildname --> give the custom name 
+	After setting the name all the builds for that project will be done in the same format as given 
+Convert to pipeline --> Whatever jobs we created if we want to convert them to pipeline we use this plugin 
+Role based Authorization strategy --> Jenkins Security 
 
+External Plugin installation 
+---------------------------------
+Plugins which we want to download from 3rd party websites 
 
+Views 
+----------
+In realtime it is very difficult through all the jobs listed 
+So we create a filter View --> new View (name) type(list view ) --> select the jobs and OK 
+Only the list of that particular jobs will be given there 
+
+Jenkins backup
+----------------
+if the configurations of any project are changed and if they want to be restored if backup is taken 
+backup, ThinBackup etc are some of the plugins used to do this process 
+ThinBackup plugin provides many features so it is widely used 
+dashboard --> manage jenkins --> ThinBackup ( backup now, restore , settings ) these are the 3 tabs available 
+create a directory in var/lib/jenkins and give the directory details / path in the server 
+make sure to change the ownership details of the directory created to jenkins from root 
+We can configure backups for all the jobs it cannot be done for a single job 
+if we click on backup now a new directory will be created in var/lib/Jenkins/JenkinsBacakup directory 
+if we want to create a zip file for old backups 
+Dashboard -->manage jenkins --> Thinbackup --> settings -->  give the backup directory and select the options as per requirement and save it 
+Instead of taking backup manually we can automate it by building the schedule for it 
 
