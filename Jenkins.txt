@@ -299,3 +299,27 @@ if we want to create a zip file for old backups
 Dashboard -->manage jenkins --> Thinbackup --> settings -->  give the backup directory and select the options as per requirement and save it 
 Instead of taking backup manually we can automate it by building the schedule for it 
 
+Jenkins Security 
+--------------------
+Just like nexus SonarQube we can create users in Jenkins 
+To avoid the misuse of the jekins server admin access we do this process 
+Only DevOps admins should have admin access 
+user names:--
+DEV            DevOps
+-------------------------
+nagella-CRUD	charan
+nath			teju
+123 is the default password 
+When we create the user 1st everyone will be having manage jenkins option so we created everyone with admin access 
+manage jenkins--> Security --> 
+Role bases Authorization strategy is the plugin needed to manage security and get role based strategy option in Authorization 
+We can also provide Enable project-based security in Job level 
+We can provide users Specific access to a particular project 
+
+Jenkins migration
+--------------------
+when we want to move Jenkins from one server to other server we use this option 
+version of Jenkins has to be same in new server to import the existing jobs in the current server 
+Job import plugin i=has to be installed in the new server to import te jobs 
+or else the Jenkins directory in var/lib directory can be directly copied to the new server 
+After this we can restart the Jenkins server and use the service as usual 
