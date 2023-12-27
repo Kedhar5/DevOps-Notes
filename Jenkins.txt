@@ -320,6 +320,83 @@ Jenkins migration
 --------------------
 when we want to move Jenkins from one server to other server we use this option 
 version of Jenkins has to be same in new server to import the existing jobs in the current server 
-Job import plugin i=has to be installed in the new server to import te jobs 
+Job import plugin has to be installed in the new server to import te jobs 
 or else the Jenkins directory in var/lib directory can be directly copied to the new server 
 After this we can restart the Jenkins server and use the service as usual 
+
+Pipeline project 
+--------------------
+Pipeline script is needed to run the pipeline project 
+Pipeline script can be written in scripted way and declarative way 
+Using pipeline project we can integrate other jobs very easily unlike freestyle project 
+This is just another way of creating the job 
+
+new item --> project name --> pipeline project --> create 
+node {
+
+def mavenHome = tool name: 'maven3.9.6'
+
+stage('CheckOutCode'){
+Git script here 
+}
+
+stage('Build'){
+sh "${mavenHome}/bin/mvn clean package"
+}
+
+stage('ExecuteSonarQube report){
+sh "${mavenHome}/bin/mvn clean sonar:sonar"
+}
+
+stage('upload Artifact to Nexus'){
+sh "${mavenHome}/bin/mvn clean deploy"
+}
+
+stage('Deploy App to Tomcat'){
+sshagent(['SSHID']){
+sh "scp -o StrictHostKeyChecking=no target/maven-web-application.war ec2-user@privateIP:/opt/apache-tomcat/webapps/"
+}
+}
+
+}
+
+# we can use sh or bat here 
+
+Whatever jenkins we use now is called master Jenkins or master instance 
+If we donot specify the node name it will be master node 
+Stagename can be anything and here we need to write script to get code from GitHub 
+We need not code from scrach we can get from the pipeline steps 
+
+Select Git and inputURL and branch give credentails and generate pipeline script 
+Generated script can be pasted in stage CheckoutCode 
+
+After we get the code we need to build the package in next stage 
+just mvn clean package will not build a package so we need to point the directory details using a variable 
+Maven should be installed in Jenkins server to run clean package 
+we need to create a variable to access maven installed in global configs 
+this line need to be written in node to run maven "def mavenHome = tool name: 'maven3.9.6'"
+version has to be mentioned exactly in tool name 
+in var/lib.jenkins/tools the available maven version will be present 
+we have created a variable and it points until maven3.9.6 but the mvn command is in bin directory so we use this "${mavenHome}/bin/mvn clean package"
+
+Then we need to configure the sonarQube details in pom.xml file 
+edit url and login details in pom.xml and add this line sh "${mavenHome}/bin/mvn clean sonar:sonar"
+Since we used sonar:sonar goal and we configured the details we can get the sonarQube report 
+
+After this we need to upload the artifact to artifact repository 
+add this line in nexus stage "${mavenHome}/bin/mvn clean deploy"
+then we need to configure the nexus details 
+take both release and snapshot from nexus and configure them in pom.xml file 
+also in conf directory in settings.xml file we need to configure nexus credentails and then build 
+
+Then we need to deploy the application to Tomcat server 
+since Tomcat is installed in a different server we need to use the scp command to copy war file to webapps directory 
+we need to install SSH agent plugin here and in configure select SSH agent in job 
+give username and take the .pem file as private key 
+then use scp command to copy war file in Jenkins server in target directory to Tomcat server webapps directory 
+use scp -o StrictHostKeyChecking=no so that it will not ask for authentication
+When we build the job now it will fail because webapps directory has root as its owner and permissions are not given so give 777 permissions to webapps/
+chmod -R 777 webapps/ 
+or else we can use the deploy to container option and deploy the app directly 
+
+
