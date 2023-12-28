@@ -334,10 +334,11 @@ This is just another way of creating the job
 new item --> project name --> pipeline project --> create 
 node {
 
-def mavenHome = tool name: 'maven3.9.6'
+def mavenHome = tool name: 'maven 3.9.6'
 
 stage('CheckOutCode'){
 Git script here 
+git credentialsId: '513be3cb-b777-4fa8-bcbe-e8c03e48719e', url: 'https://github.com/Kedhar5/maven-web-application.git'
 }
 
 stage('Build'){
@@ -353,8 +354,8 @@ sh "${mavenHome}/bin/mvn clean deploy"
 }
 
 stage('Deploy App to Tomcat'){
-sshagent(['SSHID']){
-sh "scp -o StrictHostKeyChecking=no target/maven-web-application.war ec2-user@privateIP:/opt/apache-tomcat/webapps/"
+sshagent(['690bec8e-d5a3-4479-b9e5-e9f4d67f49b2']){ --> This SSH agent has to be generated from the pipepline syntax
+sh "scp -o StrictHostKeyChecking=no target/maven-web-application.war ec2-user@privateIPof Tomcat Server:/opt/apache-tomcat/webapps/"
 }
 }
 
@@ -374,7 +375,7 @@ After we get the code we need to build the package in next stage
 just mvn clean package will not build a package so we need to point the directory details using a variable 
 Maven should be installed in Jenkins server to run clean package 
 we need to create a variable to access maven installed in global configs 
-this line need to be written in node to run maven "def mavenHome = tool name: 'maven3.9.6'"
+this line need to be written in node to run maven "def mavenHome = tool name: 'maven 3.9.6'"
 version has to be mentioned exactly in tool name 
 in var/lib.jenkins/tools the available maven version will be present 
 we have created a variable and it points until maven3.9.6 but the mvn command is in bin directory so we use this "${mavenHome}/bin/mvn clean package"
@@ -398,5 +399,36 @@ use scp -o StrictHostKeyChecking=no so that it will not ask for authentication
 When we build the job now it will fail because webapps directory has root as its owner and permissions are not given so give 777 permissions to webapps/
 chmod -R 777 webapps/ 
 or else we can use the deploy to container option and deploy the app directly 
+
+Sample pipeline
+-------------------------------------------------------------------------------------------------------------------------------------------------------
+node {
+
+def mavenHome = tool name: 'maven 3.9.6'
+
+stage('CheckOutCode'){
+git credentialsId: '513be3cb-b777-4fa8-bcbe-e8c03e48719e', url: 'https://github.com/Kedhar5/maven-web-application.git'
+}
+
+stage('Build'){
+sh "${mavenHome}/bin/mvn clean package"
+}
+
+stage('ExecuteSonarQube report'){
+sh "${mavenHome}/bin/mvn clean sonar:sonar"
+}
+
+stage('upload Artifact to Nexus'){
+sh "${mavenHome}/bin/mvn clean deploy"
+}
+
+stage('Deploy App to Tomcat'){
+sshagent(['690bec8e-d5a3-4479-b9e5-e9f4d67f49b2']){
+sh "scp -o StrictHostKeyChecking=no target/maven-web-application.war ec2-user@3.111.196.60:/opt/apache-tomcat-9.0.83/webapps"
+}
+}
+
+}
+-------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
