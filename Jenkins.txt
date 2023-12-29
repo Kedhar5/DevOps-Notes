@@ -431,4 +431,157 @@ sh "scp -o StrictHostKeyChecking=no target/maven-web-application.war ec2-user@3.
 }
 -------------------------------------------------------------------------------------------------------------------------------------------------------
 
+give the build properties to keep max no.of builds for that job 
+then create the build but keep this script in node level not in stage level 
+to print environment variables ex:-- echo "job name is ${env.JOB_NAME}"
 
+node{
+try{
+stage('checkOutcode'){
+//body
+}
+
+stage('build'){
+//body 
+}
+}
+catch(e){
+currentBuild.result="FAILURE"
+throw e 
+}
+finally{
+sendSlackNotify(currentBuild.result)
+}
+
+}
+
+def sendSlackNotify()
+{
+//body
+}
+
+Slack notification 
+-----------------------
+Send slack notification plugin is the pre requisite 
+in try block give all the pipeline code 
+in catch block give the error 
+in finally block give the message 
+
+// is a single line comment 
+/* body 
+
+*/ this is a multi line comment 
+
+Sample slack notify 
+--------------------
+https://github.com/MithunTechnologiesDevOps/maven-web-application/blob/development/JenkinsfileOct2023batch
+node {
+    try {
+        notifyBuild('STARTED')
+
+        stage('Prepare code') {
+            echo 'do checkout stuff'
+        }
+
+        stage('Testing') {
+            echo 'Testing'
+            echo 'Testing - publish coverage results'
+        }
+
+        stage('Staging') {
+            echo 'Deploy Stage'
+        }
+
+        stage('Deploy') {
+            echo 'Deploy - Backend'
+            echo 'Deploy - Frontend'
+        }
+
+  } catch (e) {
+    // If there was an exception thrown, the build failed
+    currentBuild.result = "FAILED"
+    throw e
+  } finally {
+    // Success or failure, always send notifications
+    notifyBuild(currentBuild.result)
+  }
+}
+
+def notifyBuild(String buildStatus = 'STARTED') {
+  // build status of null means successful
+  buildStatus =  buildStatus ?: 'SUCCESSFUL'
+
+  // Default values
+  def colorName = 'RED'
+  def colorCode = '#FF0000'
+  def subject = "${buildStatus}: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'"
+  def summary = "${subject} (${env.BUILD_URL})"
+
+  // Override default values based on build status
+  if (buildStatus == 'STARTED') {
+    color = 'YELLOW'
+    colorCode = '#FFFF00'
+  } else if (buildStatus == 'SUCCESSFUL') {
+    color = 'GREEN'
+    colorCode = '#00FF00'
+  } else {
+    color = 'RED'
+    colorCode = '#FF0000'
+  }
+
+  // Send notifications
+  slackSend (color: colorCode, message: summary)
+}
+
+----------------------------------------------------------------------
+
+declarative way of building a project 
+-------------------------------------
+instead of node here we use pipeline and we can directly use mvn 
+But to use maven generate a declarative script 
+For slack notification we can just use syntax generator and use post 
+
+
+pipeline 
+{
+	agent any 
+	
+	stages
+	{
+		stage('checkoutcode')
+		{
+		steps{
+		git credentialsId: '513be3cb-b777-4fa8-bcbe-e8c03e48719e', url: 'https://github.com/Kedhar5/maven-web-application.git'
+		}}
+		stage('build')
+		{
+		steps{
+		sh "mvn clean package"
+		}}
+		stage('SonarQube REport')
+		{
+		steps{
+		sh"mvn clean sonar:sonar"
+		}}
+		stage('nexus Artifact repository')
+		{
+		steps{
+		sh "mvn clean deploy"
+		}}
+		stage('deploy'){
+		steps{
+		sshagent(['690bec8e-d5a3-4479-b9e5-e9f4d67f49b2']){ --> This SSH agent has to be generated from the pipepline syntax
+sh "scp -o StrictHostKeyChecking=no target/maven-web-application.war ec2-user@privateIPof Tomcat Server:/opt/apache-tomcat/webapps/"
+
+		}
+		}
+	}
+}
+
+Multi branch Pipeline project 
+--------------------------------------
+Repos has n branches and we wanna perform CI process there we can use this process 
+New item --> name --> multi branch pipeline --> give git repo URL and credentials --> script path 
+The script has to be present in all the branches where we need to create the job 
+If we have 4 branches and the script file is present in only one 3 branches themn only 3 jobs will be created 
+Also only 3 branches will be continuously integrated 
