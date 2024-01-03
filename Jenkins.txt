@@ -545,6 +545,9 @@ For slack notification we can just use syntax generator and use post
 pipeline 
 {
 	agent any 
+	tools {
+     maven 'maven 3.9.6'
+    }
 	
 	stages
 	{
@@ -558,6 +561,7 @@ pipeline
 		steps{
 		sh "mvn clean package"
 		}}
+		/*
 		stage('SonarQube REport')
 		{
 		steps{
@@ -574,7 +578,7 @@ pipeline
 sh "scp -o StrictHostKeyChecking=no target/maven-web-application.war ec2-user@privateIPof Tomcat Server:/opt/apache-tomcat/webapps/"
 
 		}
-		}
+		} */
 	}
 }
 
@@ -585,3 +589,196 @@ New item --> name --> multi branch pipeline --> give git repo URL and credential
 The script has to be present in all the branches where we need to create the job 
 If we have 4 branches and the script file is present in only one 3 branches themn only 3 jobs will be created 
 Also only 3 branches will be continuously integrated 
+
+Build with parameters
+-----------------------
+Option will be avaibale after pressing new item "this project is parameterized"
+Choice parameter:-- to create a variable and give choices 
+We can remove hardcoded branch name and mention ${parameter}
+
+Build with parms in Pipleine
+---------------------------------
+pipeline 
+{
+	agent any 
+	tools {
+     maven 'maven 3.9.6'
+    }
+	
+parameters {
+  string defaultValue: 'kedhar', description: 'enter the person name', name: 'personName'
+  choice choices: ['master', 'dev', 'uat', 'development'], description: 'enter branch name', name: 'branchName'
+}
+	
+	stages
+	{
+		stage('checkoutcode')
+		{
+		steps{
+		git branch: "${params.branchName}", credentialsId: '513be3cb-b777-4fa8-bcbe-e8c03e48719e', url: 'https://github.com/Kedhar5/maven-web-application.git'
+		}}
+		stage('build')
+		{
+		steps{
+		sh "mvn clean package"
+		}}
+	}
+}
+
+to include the parameters we use syntax generator and use parameters there 
+a snippet like this will be generated 
+parameters {
+  string defaultValue: 'kedhar', description: 'enter the person name', name: 'personName'
+  choice choices: ['master', 'dev', 'uat', 'development'], description: 'enter branch name', name: 'branchName'
+}
+Add this in the pipeline before stage section and remove the hardcoding from the stages
+
+Parallel
+----------------
+instead of executing stages 1 by 1 we can execute stages parallely
+
+
+pipeline 
+{
+	agent any 
+	
+	tools {
+     maven 'maven 3.9.6'
+    }
+	
+parameters {
+  string defaultValue: 'kedhar', description: 'enter the person name', name: 'personName'
+  choice choices: ['master', 'dev', 'uat', 'development'], description: 'enter branch name', name: 'branchName'
+}
+	
+		stages
+	{
+		stage('checkoutcode')
+		{
+		steps{
+		git branch: "${params.branchName}", credentialsId: '513be3cb-b777-4fa8-bcbe-e8c03e48719e', url: 'https://github.com/Kedhar5/maven-web-application.git'
+		}}
+		
+		stage('test and create package') {
+  steps {
+    parallel(
+      Build: {
+        sh "mvn clean test"
+      },
+      SonarQubeReportExecution: {
+        sh "mvn clean package"
+      }
+    )
+  }
+}
+	}
+}
+
+Trigger
+--------------
+trigger a job ob=nce the current job is executed successfully 
+rhis will be available in Freestyle as an option 
+For scripting we need to use the syntax genetaor and add the generated code at the end of job 
+we can write a new stage
+stage('trigger'){
+steps{
+build job: "triggerBScriptingWay"
+}
+}
+
+master Slave Architecture 
+-----------------------------
+Rther than running all jobs in 1 server we create slaves and run the jobs in them 
+We can also call them as nodes 
+They can be created in Windows/Linux/Mac 
+Server has to be different from the Master Server 
+If we create slaves in same server then there is no use because there are no resources 
+Master slave architecture is used to enhance the performance 
+Without Java slaves are not going to run 
+For Slaves 1GB RAM is enough but if we want to integrate we can use 4GB RAM 
+Protocal is TCP/IP and Connection type is SSH for lInux 
+Depanding on the server configs we can assign the job 
+If we use same slave name fro all slaves it is advantageous as the bjob will identify the slave availability 
+to create node
+DashBoard --> Manage Jenkins --> nodes --> new node
+Number of executors
+1
+Remote root directory
+/home/ec2-user/flipkartnode/
+Labels
+nodes
+Usage
+Use this node as much as possible
+Launch method
+Launch agents via SSH
+Host
+172.31.2.187
+Credentials
+ec2-user (Jenkins Node creds)
+Host Key Verification Strategy
+Manually trusted key Verification Strategy
+Require manual verification of initial connection
+Advanced
+Availability
+Keep this agent online as much as possible
+
+Now the node is ready to use Go To the job and select "restrict where this project can be run"
+Mention th node name in Label expression 
+When we give this workspace will be created in the directory which we have created 
+Since git is not present in Slave instance the job wont run so we need to install git first then we can build the job 
+
+In scripted way instead of using agent any wif we use following slave node will be used 
+agent {
+	
+	    label 'flipkartnode'
+	}
+
+in scripted way in node('flipkartnode') node name has to be mentioned in node itself in scripted way 
+If we change the no.of executors while we create a job then the number of jobs can be run parallaelly 
+no.of executors depands on the server configurations 
+
+Maven Java 						NodeJS
+------------------				---------------------
+mvn clean package 				npm install 
+mvn sonar:sonar					npm run sonar
+npm run sonar 					npm publish 
+pom.xml 						package.json -->nexus
+pom.xml 						sonar-project.js --> SonarQube
+								.npmrc file for credentials 
+nodeJs plug in need to be installed and then nodeJS configured in tools 
+to generate the Authentication token for nexus to in .npmrc file 
+[ec2-user@ip-172-31-2-79 ~]$ echo -n "admin:Kedhar@5" | openssl base64
+YWRtaW46S2VkaGFyQDU=
+
+node
+{
+    stage('checkoutCode')
+    {
+        git 'https://github.com/Kedhar5/nodejs-app.git'
+    }
+    stage('build')
+    {
+        nodejs(nodeJSInstallationName: 'NodeJS21.5.0'){
+        sh "npm install"
+        }
+    }
+    stage('sonarQube report')
+    {
+        nodejs(nodeJSInstallationName: 'NodeJS21.5.0'){
+        sh "npm run sonar"
+        }
+    }
+    /*
+    stage('Nexus upload')
+    {
+        sh "npm publish"
+    }
+    */
+    stage('run nodeJS')
+    {
+        sh "npm start"
+    }
+}
+
+the application can be accessed at http://PublicIP:portNumberIn ConsoleOutput/ContextPathin app.js 
+
