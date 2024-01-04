@@ -782,3 +782,52 @@ node
 
 the application can be accessed at http://PublicIP:portNumberIn ConsoleOutput/ContextPathin app.js 
 
+Jenkins Shared Libraries
+----------------------------
+This is similar to a function. Instead of writing the code repeatedly we can keep the code in SCM and call it 
+It is concept of having common pipeline code which can be called by anyone 
+Configuring the groovy file or thr function:--
+dashboard--> manage Jnekins --> System --> Global Pipeline Libraries
+Shared SCM is the function name which we have given 
+@Library('Shared SCM') _ is used to import the code 
+
+@Library('Shared SCM') _
+pipeline 
+{
+	agent any 
+    tools {
+     maven 'maven 3.9.6'
+    }
+
+	stages
+	{
+		stage('checkoutcode')
+		{
+		    steps{
+		git credentialsId: '513be3cb-b777-4fa8-bcbe-e8c03e48719e', url: 'https://github.com/Kedhar5/maven-web-application.git'
+		}}
+		stage('build')
+		{
+		    steps
+		    {
+		sh "mvn clean package"
+		}
+		}
+	}
+	post {
+  success {
+    sendSlackNotifications(currentBuild.result)
+  }
+  failure {
+    sendSlackNotifications(currentBuild.result)
+  }
+  }
+}
+
+Jenkins CLI
+--------------------
+Command Line Arguments 
+jenkins-cli.jar needs to be downloaded from http://publicIP:8080/cli
+java -jar jenkins-cli.jar -auth kedhar:Kedhar@5 -s http://13.201.88.196:8080 help
+The above command gives the commands and their outputs 
+110627fd70449f44d5b8bc7b5955ad92e1 is our login token 
