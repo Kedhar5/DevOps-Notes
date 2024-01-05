@@ -1,0 +1,19 @@
+Ansible:--
+----------------------------------------------
+Ansible is a opensource, Configuration management tool provided by Redhat 
+Chef Puppet SaltStack are similar tools 
+
+Configuration
+--------------------
+Any task which can be performed on servers is called configuration 
+Ex: a) install/uninstall/update the packages 
+    b) create the files or directories
+	c) Start/stop the services 
+	d) create/delete the users 
+
+Ansible is a Python based tool 
+We use SSH connection type from configuration managemnet tool to Host Machine 
+We use YAML --> Yet Another Markup Tool in Ansible 
+Ansible is a push based Architecture 
+Whatever configuartions are there in Ansible server can be pushed to Host Machine 
+
