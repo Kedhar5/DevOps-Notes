@@ -13,7 +13,95 @@ Ex: a) install/uninstall/update the packages
 
 Ansible is a Python based tool 
 We use SSH connection type from configuration managemnet tool to Host Machine 
-We use YAML --> Yet Another Markup Tool in Ansible 
+We use YAML   Yet Another Markup Tool in Ansible 
 Ansible is a push based Architecture 
 Whatever configuartions are there in Ansible server can be pushed to Host Machine 
 
+Ansible Architecture 
+-------------------------
+In host inventory we specify which host machines Ansible should connect tofrom ansible server 
+default file name : Hosts
+/etc/ansible/hosts is the directory 
+yum install ansible -y 
+Instead of default host inevntory name we can give custom name also 
+Host inventory is both static and dynamic 
+As a devops engineer we write ansible playlists. Which means a YAML file with series of instructions 
+
+Core modules 
+--------------
+after installation of Ansible some default core modules will be present 
+As per requirement we can write our custom modules, we need to write the module in python
+
+Installation
+--------------------
+create 3 servers 
+1 ansible and 2 host machines 
+private IP's 
+Ansible : 172.31.36.206
+host 1 : 172.31.34.21
+host 2 : 172.31.36.37 
+
+connect to servers   
+switch to root user   
+create Ansible user   useradd ansible
+set the pwd for ansible user   passwd ansible 
+enable pswd auth   /etc/ssh/sshd_config
+restart the sshd service   service sshd restart
+provide sudo access visudo
+
+user ansible 
+pwd ansible
+
+python --version 
+sudo yum install python-pip
+pip install ansible
+in ansible user ansible --version 
+
+Ansible is installed in ansible server 
+From ansible server create SSH keys by using ansible user only 
+ssh-keygen
+copy SSH public key to host machines 
+ssh-copy-id command is used here 
+ssh-copy-id ansible@172.31.34.21
+ssh-copy-id ansible@172.31.36.37
+
+Now we keep host addresses in ansible server 
+[ansible@ip-172-31-36-206 ~]$ cd /etc/
+[ansible@ip-172-31-36-206 etc]$ sudo mkdir ansible
+[sudo] password for ansible:
+[ansible@ip-172-31-36-206 etc]$ cd ansible/
+[ansible@ip-172-31-36-206 ansible]$ ls
+[ansible@ip-172-31-36-206 ansible]$ pwd
+/etc/ansible
+[ansible@ip-172-31-36-206 ansible]$ sudo vi hosts
+
+paste both the server Private Ip in the hosts file 
+
+Now test the configuration connections using below command 
+ansible all -m ping
+
+/etc/ansible/hosts --> default 
+/etc/ansible/flipkart --> cust Host inventory file 
+ansible all -i /etc/ansible/flipkart -m ping 
+ansible all --inventory-file /etc/ansible/flipkart -m ping
+
+servers can be grouped as follows 
+[webservers]
+172.31.34.21
+
+[appservers]
+172.31.36.37
+
+[DBserver]
+172.31.36.37
+
+Same server can be in multiple groups 
+ansible DBserver -m ping
+ansible appserver -m ping
+ansible webserver -m ping
+
+localhost can be added to hosts 
+ssh-copy-id ansible@localhost
+Then it also can be pinged 
+ansible Ip -m ping is to ping a particular server 
+ungrouped servers need to be placed at before all the headers in the hosts file 
