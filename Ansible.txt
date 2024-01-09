@@ -105,3 +105,84 @@ ssh-copy-id ansible@localhost
 Then it also can be pinged 
 ansible Ip -m ping is to ping a particular server 
 ungrouped servers need to be placed at before all the headers in the hosts file 
+
+if we mention all -m all the servers will be pinged which are present in the Hosts file 
+to check the modules presnt by default : ansible-doc -l 
+ansible-doc yum --> to get to know about a single module 
+here yum is the module name 
+docs.ansible.com the documentation will be present here 
+
+ansible all -m ping -o is used to display the output in a single line 
+ansible all -m shell -a "date" using this we can display date
+by using the shell module as above we can use the Linux commands
+ansible all -m shell -a "uptime" --> to display how long servers are up and running 
+ansible all -m shell -a "df" or ansible all -m shell -a "df -h"
+
+yum module
+-----------------
+ansible all -m yum -a "name=httpd" --> install httpd in all servers 
+ansible all -b -m yum -a "name=httpd" --> -b means become 
+ansible all -b -m service -a "name=httpd state=started" --> start the service 
+service sshd status --> to check the status 
+ansible all -b -m yum -a "name=git" --> install git in all servers 
+
+copy module 
+-------------
+ansible all -m copy -a "src=devops.txt dest=/tmp/devops.txt"
+copy file to all the Hosts machines 
+
+File module 
+-----------------
+ansible all -m file -a "path=/home/ansible/filemodule.txt state=touch"
+This is to create a file similarly we can create soft link hard link directories etc 
+
+setup module
+---------------
+we can get all the servers Host details 
+ansible all -m setup
+
+user module 
+---------------
+Create Kedhar user in all Host machines
+ansible all -b -m user -a "name=Kedhar"
+ls -l /home/ --> to view all the Users in the server 
+
+YAML
+---------------
+Yet Another Markup Language 
+Human friendly, Data serialization language 
+It can support many languages 
+key: value 
+name: kedhar
+age: 22
+
+we can use true|yes false|no for boolean data type 
+We can use string value float int for values 
+we use use lists as follows 
+
+devOpsTools:
+ - git
+ - gitHub 
+ - Maven 
+ - Tomcat
+ or we can use as below 
+devOpsTools: [git,maven,tomcat,ansible]
+
+Playbook 
+-------------
+playbook is a Single YAML file which contain 1 or more YAML files 
+Play is set of tasks which can be execued on host machines 
+Task is action to perform on Host Machines
+Sample playbook to ping servers 
+------------------------------------
+
+pingServers.yaml
+
+---
+- hosts: all
+  tasks: 
+  - name: Ping Servers
+    ping: 
+...
+
+ansible-playbook 
