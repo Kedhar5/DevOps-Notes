@@ -122,6 +122,9 @@ yum module
 -----------------
 ansible all -m yum -a "name=httpd" --> install httpd in all servers 
 ansible all -b -m yum -a "name=httpd" --> -b means become 
+
+service module
+----------------
 ansible all -b -m service -a "name=httpd state=started" --> start the service 
 service sshd status --> to check the status 
 ansible all -b -m yum -a "name=git" --> install git in all servers 
@@ -185,4 +188,279 @@ pingServers.yaml
     ping: 
 ...
 
-ansible-playbook 
+ansible-playbook --help 
+ansible-playbook pingServers.yaml --list-hosts
+playbook: pingServers.yaml
+
+  play #1 (all): all    TAGS: []
+    pattern: ['all']
+    hosts (3):
+      172.31.34.21
+      172.31.36.37
+
+ansible-playbook pingServers.yaml --list-tasks 
+playbook: pingServers.yaml
+
+  play #1 (all): all    TAGS: []
+    pattern: ['all']
+    hosts (3):
+      172.31.34.21
+      172.31.36.37
+      localhost
+[ansible@ip-172-31-36-206 ansiblePlaybboks]$ ansible-playbook pingServers.yaml --list-tasks
+
+playbook: pingServers.yaml
+
+  play #1 (all): all    TAGS: []
+    tasks:
+      Ping Servers      TAGS: []
+
+ansible-playbook pingServers.yaml --step 
+Perform task: TASK: Gathering Facts (N)o/(y)es/(c)ontinue: y
+Perform task: TASK: Ping Servers (N)o/(y)es/(c)ontinue: y
+
+Here gathering facts is to get the info of the servers but that can be disabled 
+in .yaml file give gather_facts: no then run the --step command only the given task will run  
+
+ansible-playbook pingServers.yaml --syntax-check 
+playbook: pingServers.yaml
+
+ansible-playbook pingServers.yaml --check 
+ansible-playbook pingServers.yaml -v --> run the program in debug mode 
+ansible-playbook pingServers.yaml -vv --> extension of above step 
+
+ansible.cfg is the default config file 
+
+Create a file 
+----------------
+C:\Users\kedha\Desktop\Ansible Playbooks\CreateFile.yaml
+owner: parameter is as root when we execute playbook we got an error bc we are running from ansible user 
+So we use "become: true" to get the sudo previleges
+after this the file will be created in the mentioned path with the given permissions also 
+in the state: parameter we can use the below options 
+"absent"
+"directory"
+"file"
+"hard"
+"link"
+"touch"
+
+to access the variable we use {{variableName}} 
+if we use template module instead of copy module it will replace the variable name with value
+So when we access vars we need to use the template module 
+
+[ansible@ip-172-31-36-206 ansiblePlaybboks]$ ansible-playbook installHttpVar.yaml -e company=nagella
+This is how we pass a value dynamically to a html file 
+we can alos use ansible-playbook installHttpVar.yaml --extra-vars company=nagella
+ansible-playbook installHttpVar.yaml --extra-vars 'company=nagella contact=9999'
+
+Group vars
+--------------
+sudo mkdir in /etc/ansible/group_vars
+we can create group name yaml files 
+in /etc/ansible/hosts we have all groups 
+
+sudo vi /etc/ansible/group_vars/webservers.yaml 
+sudo yum install java-11-amazon-corretto-devel
+
+appservers.yaml 
+sudo yum install java-1.8.0-amazon-corretto-devel
+
+so we can install diff versions of java in different host machines as above
+But here local host is not in any group so we need to create a file called all.yaml and we need to repeat the same process 
+
+host variables ---Yet do the LAB
+---------------------
+try this process for a new server
+sudo mkdir /etc/ansible/host_vars 
+copy the pem file to the home directory 
+privateip.yaml 
+mention the version of java we need along with the variable name in above file and run the Install java yaml playbook 
+
+handlers
+---------------
+Handlers are special tasks which can run at the end of play when other task is notified
+ex: install http server
+	copy index.html
+	start the http server 
+	
+Loops
+-----------
+general code to install a software
+------------------------------------
+---
+- hosts: all
+  become: true
+  gather_facts: no
+  tasks:
+   - name: Install git
+     yum:
+      name: git
+      state: present
+   - name: Install vim
+     yum:
+      name: vim
+      state: present
+   - name: Install zip
+     yum:
+      name: zip
+      state: present
+   - name: Install unzip
+     yum:
+      name: unzip
+      state: present
+...
+
+Code with a basic loop
+-------------------------
+---
+- hosts: all
+  become: true
+  gather_facts: no
+  tasks:
+   - name: Install Softwares
+     yum: 
+      name: "{{item}}"
+
+     with_items:
+      - git
+      - vim
+      - zip
+      - unzip
+...
+
+If we dont mention state it will take state: present 
+
+When condition -- Yet to do the lab
+-------------------
+this is a cross distribution thing
+we can do this for Amazon LInux Ubuntu etc
+
+---
+- hosts: all
+  become: true
+  gather_facts: no
+  tasks:
+   - name: Install HTTP server in Amazon Linux
+     yum:
+      name: httpd
+     when: ansible_distribution == "Amazon"
+   - name: Install HTTP server in Ubuntu
+     apt:
+      name: apache2
+     when: ansible_distribution == "Ubuntu"
+...
+
+Tags 
+-------------
+In real time we can have n number of tags in a playbook 
+Instead of running all tasks to run the specific task we use tags 
+We need to mention a tag for each task We can use the tags argument 
+Tag has to be written under the task name 
+we can also have more than one tag name in a task 
+
+ex: 
+---
+- hosts: all
+  become: true
+  gather_facts: no
+  tasks:
+  - name: install apache HTTP server
+    tags: 
+     - install
+    yum:
+     name: httpd
+     state: present
+  - name: copy index.html
+    tags: 
+     - copy
+     - install
+    template:
+     src: index.html
+     dest: /var/www/html/index.html
+  - name: restart the HTTP server
+    tags: 
+     - restart
+    service:
+     name: httpd
+     state: restarted
+...
+
+Syntax check
+---------------
+ansible-playbook tagsdemo.yaml --syntax-check
+playbook: tagsdemo.yaml
+
+view tags in a playbook 
+------------------------------
+[ansible@ip-172-31-36-206 ansiblePlaybooks]$ ansible-playbook tagsdemo.yaml --list-tags
+
+playbook: tagsdemo.yaml
+
+  play #1 (all): all    TAGS: []
+      TASK TAGS: [copy, install, restart]
+	  
+Run some tags 
+------------------
+ansible-playbook tagsdemo.yaml --tags "tag1,tag2"
+
+Skip some tags
+------------------
+ansible-playbook tagsdemo.yaml --skip-tags "tagname"
+
+Roles
+------------
+Role is a directory which can be used in playbooks
+[ansible@ip-172-31-36-206 ansiblePlaybooks]$ ansible-galaxy init httpserver
+- Role httpserver was created successfully
+Once we create a role a pre defined directory structure will be created 
+Directories going to be created 
+[ansible@ip-172-31-36-206 ansiblePlaybooks]$ cd httpserver/
+[ansible@ip-172-31-36-206 httpserver]$ tree
+.
+├── README.md
+├── defaults
+│   └── main.yml
+├── files
+├── handlers
+│   └── main.yml
+├── meta
+│   └── main.yml
+├── tasks
+│   └── main.yml
+├── templates
+├── tests
+│   ├── inventory
+│   └── test.yml
+└── vars
+    └── main.yml
+
+We mention the variable in vars/main.yaml
+   in handlers/main.yaml we ention the handlers 
+   in tasks/main.yaml we mention all th tasks 
+   in templates we can write the piece of code
+
+Sample:
+------------
+---
+- hosts: all
+  become: true
+  gather_facts: no
+  roles:
+   - httpserver
+...
+
+Ansible Vault
+-------------------
+PAt, SonarQube Token etc are secure data which needs to be stored securely 
+So ansible is providing the Vault 
+Hashicrop Vault
+Hashicrop Packer
+Hashicrop Terraform
+
+ansible-vault is the command used here 
+ansible-vault create filename
+ansible-vault encrypt filename
+ansible-vault decrypt filename
+ansible-vault view filename 
+ansible-vault edit filename 
