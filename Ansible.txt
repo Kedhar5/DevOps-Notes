@@ -269,8 +269,12 @@ sudo yum install java-1.8.0-amazon-corretto-devel
 so we can install diff versions of java in different host machines as above
 But here local host is not in any group so we need to create a file called all.yaml and we need to repeat the same process 
 
-host variables ---Yet do the LAB
+host variables
 ---------------------
+host3 : 172.31.37.113
+javaversion: java-11-amazon-corretto-devel
+
+
 try this process for a new server
 sudo mkdir /etc/ansible/host_vars 
 copy the pem file to the home directory 
@@ -464,3 +468,142 @@ ansible-vault encrypt filename
 ansible-vault decrypt filename
 ansible-vault view filename 
 ansible-vault edit filename 
+
+[ansible@ip-172-31-36-206 group_vars]$ ansible-vault create all.yaml
+New Vault password:
+Confirm New Vault password:
+ERROR! Unexpected Exception, this is probably a bug: [Errno 13] Permission denied: 'all.yaml'
+to see the full traceback, use -vvv
+
+sudo chmod 777 group_vars/
+[ansible@ip-172-31-36-206 group_vars]$ ansible-vault create all.ya
+New Vault password:
+Confirm New Vault password:
+
+ansible-all -m ping --ask-vault-pass --> if the password is stored in a ansible vault we can use this command to ping the server 
+ansible-all -m ping --vault-paswword-file=filename.txt 
+
+Dynamic Inventory
+------------------------
+It is a script, these scripts can be used to get all the Host machine Ip addresses/hostnames dynamically 
+The inventory file is a YAML configuration file and must end with aws_ec2.{yml|yaml}. Example: dynamicInventory_aws_ec2.yaml
+--------------------------------------------------------
+plugin: aws_ec2
+
+aws_access_key: AKIAXEKZFRVVWLNZ5K6Y
+aws_secret_key: Qq4DmHHDDykE0Y5F8sQFmSQdWBrGFA5USnxmjqLJ
+
+regions:
+  - ap-south-1
+
+filters:
+  instance-state-name: running
+ 
+keyed_groups:
+  - key: tags.Name
+    prefix: ""
+	seperator: ""
+
+hostnames:
+  - private-ip-address
+  
+compose:
+  ansible_hosts: private-ip-address
+--------------------------------------------------------
+
+aws_access_key & aws_secret_key --> IAM --> users --> create user 
+then click on the user go to security tab and create the access key and paste it there 
+
+dynamicInventory_aws_ec2.yaml
+ansible-inventory graph -i dynamicInventory_aws_ec2.yaml
+
+if the graph or any command doesnt work then we need to give the permission to thes users in users tab in IAM 
+
+To avoid harcoding the keys 
+create a role using IAM --> roles --> AWS --> EC2 --> AmzonEC2Readon --> create role 
+Instances --> Assign role to the Ansible server 
+Action --> security --> Modify IAM role --> select the creted role 
+Then we can comment the Keys in Dynamic Inventory playbook and run the playbook
+
+Ansible + Jenkins
+---------------------
+We need to have Ansible and Jenkins server 
+We also need to have a Jenkins node
+Java git should be present in ansible server 
+using 8080 port number we can access Jenkins server 
+
+Once the Jenkins server is ready we need to create a slave 
+The slave node has to be in ansible server 
+in ansible server ec2-user create a ansiblenode directory 
+Then we need to go to Jenkins server and create a node in Manage jenkins --> nodes 
+give the path and private IP and the path of ansible server 
+Now the structure is created 
+
+Go to GitHub --> Jenkins-with-ansible repository --> Inventory --> Then giv ethe host details there 
+to run the playbook in jenkins 
+------------------------------------
+manage jenkins --> creds --> secret file --> give the pem file --> copy cred ID
+
+environment need to be written before stages 
+
+environment{
+AWS_EC2PRIVATEKEY=credentials('copied creds ID')
+}
+
+stage{
+steps{
+sh "ansible-playbook -i githubStatiscHostLocation githubPlaybooklocation --private-key=$AWS_EC2PRIVATEKEY --ssh-common-args='-o StrictHostKeyChecking=no'"
+}
+}
+
+jenkins - Ansible Dynamic Inventory
+---------------------------------------
+stage{
+steps{
+sh "ansible-playbook -i githubStatiscHostLocation githubPlaybooklocation --private-key=$AWS_EC2PRIVATEKEY --ssh-common-args='-o StrictHostKeyChecking=no'tomcatserver"
+}
+}
+
+we have given tomcatserver so that tomcat will be installed in servers avaiable 
+
+We can also create the servers dynamically 
+
+Terraform 
+-------------
+it is a IaC tool --> infrastrucure as Code tool
+CloudFormation ia other tool which supports only AWS 
+.tf is the extensionfor terraform files 
+
+ec2instancecreation.tf
+----------------------------
+provider "aws"{
+region = "ap-south-1"
+}
+
+resource "aws_instance" "Instance Name"
+{
+ami = "amiID available in the Launch Instance"
+instance_type = "t2.micro"
+key_name = "pemFileName"
+security_groups = ["securityGroupName"]
+tags={
+Name = "Instance Name"
+}
+}
+
+count will determine the no.of instances that can be created 
+If we dont mention count 1 server will be created 
+create a job in jenkins 
+In Github repo we have Dynamic Hosts Playbooks IaC code 
+
+to execute the terraform script
+---------------------------------
+stage('ExecuteTerraformScript'){
+steps{
+sh "terraform -chdir=terrafromscriptDirectory init"
+sh "terraform -chdir=terrafromscriptDirectory apply --auto-approve"
+}
+}
+
+terraform needs to be installed on the node where the pipeline has to run
+We need to also add AmasonEC2wite permission to make the job run or s=else we might get authorization error 
