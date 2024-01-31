@@ -1,2 +1,17 @@
 AWS
 --------
+DevOps is a methodology which is followed by dev team to deliver an application software 
+Application is a program which is developed to perform certain business problems 
+
+Stand Alone Application --> Any application which is developed to solve a problem and installed locally is called Stand Alone Application 
+
+Web Application --> App which can run somewhere and we can access it from the browser using Internet or Intranet
+	Static Web Application --> Frontend/UI development 
+	Dynamic Web Application --> data processing application/ 3 tier application
+			presentation tier (UI/GUI)
+			Application tier (API)
+			Data tier (Databases)
+					-->SQL (MySQL, IBM DB2)
+					-->NoSQL (MongoDB) here data will be stored as json document
+
+Mobile Applications --> applications which can be accessed and can be run on mobiles 

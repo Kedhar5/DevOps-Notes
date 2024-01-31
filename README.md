@@ -10,5 +10,6 @@ Until now I have Uploaded notes of
 8.Sonartype Nexus
 9.Jenkins
 10.Ansible
+11.AWS
 
 ps:This README file will be updated very frequently to let know what are the new additions to the learning curve
