@@ -572,7 +572,7 @@ Terraform
 -------------
 it is a IaC tool --> infrastrucure as Code tool
 CloudFormation ia other tool which supports only AWS 
-.tf is the extensionfor terraform files 
+.tf is the extension for terraform files 
 
 ec2instancecreation.tf
 ----------------------------

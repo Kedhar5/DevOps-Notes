@@ -15,3 +15,18 @@ Web Application --> App which can run somewhere and we can access it from the br
 					-->NoSQL (MongoDB) here data will be stored as json document
 
 Mobile Applications --> applications which can be accessed and can be run on mobiles 
+
+App --> DB --> OS --> HardWare --> On premise Data Center 
+the data center will be managed by the company itself inside their premises 
+
+Business req: High availability, fault tolerent, Scalable, elasticity
+
+Cloud service 
+---------------------------
+service provided to the user via internet from a Cloud computing providers 
+
+Cloud Computing
+---------------------------
+on-demand delivery of Infrastructure resources over Internet.
+Instead of having physical data centers we can have them as services from Cloud service providers such as AWS 
+we can have services such as Servers Storage databases Software Analytics etc
