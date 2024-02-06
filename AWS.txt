@@ -30,3 +30,100 @@ Cloud Computing
 on-demand delivery of Infrastructure resources over Internet.
 Instead of having physical data centers we can have them as services from Cloud service providers such as AWS 
 we can have services such as Servers Storage databases Software Analytics etc
+
+Physical deployment
+--------------------
+Physical Server --> OS --> Software + Configuration + Environment --> Application 
+
+Virtualization
+--------------
+Physical server --> Hypervisors --> Software + Configuration + Environment --> Application 
+Hypervisors (which performs the virtualization or creates the virtual machines on top of physical server)
+OS is not needed for type 1 Hypervisors
+type 2 Hypervisor is software based 
+
+AWS SERVICES 
+----------------
+
+1)EC2 - Elastic Cloud Computing
+---------------------------------
+EC2 provides on demand scalable computing capacity for servers 
+EC2 is your computer in cloud server 
+EC2 provide scalable compute capavity in AWS cloud 
+Enables u to scale up or down to handle changes in requirement 
+EC2 is used to launch as many or as less virtual servers 
+Using Ec2 we can as many or as less servers as we needed
+we can manage the security storage etc 
+AWS has a clear documentation for all the services 
+
+EC2 internally uses EBS VPC and other services for storage and security purposes 
+
+Basic computer                   EC2
+----------------------           ----------------------
+OS 								 AMI's
+CPU 							 Instance type 
+ROM & RAM 						 RAM & EBS
+Network Card					 IP addressing 
+Firewall						 Security groups
+
+AMI -- Here OS will be pre installed or else here the OS will be pre configured 
+Instance type -- for General purpose and storage capacity 
+	Capacity of Ec2 instance depands on instance type we select 
+
+EC2 purchasing options
+-------------------------
+On-Demand
+----------
+Most expensive, Highly flexible, charged by hour, Terminate instnce anytime you want 
+
+Reserved
+----------
+For a set of time period, Price discount, responsible for the entire price even if we terminate the instance 
+
+Spot
+-----
+AWS sells unused instances for a low price for a short time 
+Charged  by hour, price based on supply or demand in market 
+we can vid on instance type and use if our price more than bid price 
+
+Dedicated Host
+---------------
+Physical host is dedicated for single AWS customer 
+Other AWS customers instance will not be created on the same physical Host 
+
+How are we charged for using EC2
+---------------------------------
+1.Purchase option 
+	On demand
+	reserved 
+	spot 
+2.Instance family & type
+	general purpose 
+	compute optimized
+	GPU optimized
+	memory optimized
+	storage optimized
+3.EBS charges are additional 
+4.AMI type
+	Linux 
+	Windows
+5.Data Transfer
+6.Region
+
+Components of EC2
+-------------------
+Tags -- It is like labeling your things 
+	these are used for identification and governance purpose 
+	we can also use additional tags 
+	
+AMI -- Amazon Machine Image 
+	Pre configured package which has OS and settings related to it
+	Types
+	------
+	Community AMI 
+		free to use and just has OS and general settings
+	Marketplace AMI 
+		OS+Additional licensed software
+	MyAMI(Golden AMI)
+		your own AMI with OS and Softwares 
+	
