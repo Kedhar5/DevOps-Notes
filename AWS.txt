@@ -127,3 +127,63 @@ AMI -- Amazon Machine Image
 	MyAMI(Golden AMI)
 		your own AMI with OS and Softwares 
 	
+Instance type
+---------------
+It is the CPU of the instance 
+It will determine Hardware of server 
+Families
+---------
+Each family will contain different sizes 
+types of families 
+------------------
+General purpose 
+	Balanced performance , Websites Dev code repos 
+compute optimized
+	High CPU performance, Batch Job procesing
+GPU optimized
+	High end GPU , video encoding and ML 
+memory optimized
+	large RAM , data mining and database storage 
+storage optimized
+	
+Key Pair
+---------
+used for SSH purposes 
+sshd process will run on default on port 22 
+By default the password based authentication is disabled for any server created 
+.pem file is a Private key
+public key will be maintained within the server /home/user/.ssh/authorized_keys 
+
+Network 
+---------
+For one system to connect with other system network is used 
+VPC service is used by default for every AWS server 
+even though if we donot create  a VPC one VPC which is default will be available for us 
+for the same VPC 3 subnets will be there
+the subnets which are under the default VPC will be public subnets 
+In projects the network should be private 
+
+Security Group
+---------------
+Virtual firewall that controls the traffic 
+there are inbound and outbound rules 
+we need to enable the port number in the inbound rules so that we can access the server from the network 
+We need to allow the traffic which is required 
+
+Storage 
+--------
+This is where the OS is booted , Atleast 1 root value is required 
+/ is the root directory for linux servers 
+Instance storage is the storage which is created in the same server 
+EBS value is a storage area network where the storage can be accessed from different servers 
+https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/instance-store-volumes.html
+
+User Data 
+----------
+we can execute the user data when the Instance is running 
+AWS will run some kind of scripts during the launch of the AWS server 
+It will be executed with root user permission so no need to use sudo 
+also -y flag need to be used for the commands which are required 
+These scripts are called bootstarp scripts 
+this script wil execute only once while we create the server 
+It wont work while we stop and start the server 
