@@ -187,3 +187,83 @@ also -y flag need to be used for the commands which are required
 These scripts are called bootstarp scripts 
 this script wil execute only once while we create the server 
 It wont work while we stop and start the server 
+
+We can create a server in a region and the Availability zonw will be selected automatically 
+EC2 instance will use a storage to boot up the OS 
+Within the EC2 instance we can run any process 
+By default every EC2 instance will have a Private Ip address 
+Private Ip address will allow the systems if they run on the same Network 
+if the servers are on same network they can contact each other even eithout internet 
+servers cannot be contacted from our Local systems using the Private IP address it can happen only using the Public IP address 
+to ssh to a server --> ssh -i .pemFile ec2-user@publicIP
+
+For pinging a server we need to edit the security group and allow access to all ICMP protocols and give access to all IPV4
+we can either use ping or telnet command 
+ex:-- ping IPaddress
+	  telnet Ipaddress 22
+	  curl -v http://IP:portnumber 
+Here 22 is the port number 
+
+Command used to find which process is listening on which port 
+	netstat ex:-- sudo netstat -tulnp 
+	
+Status check 
+-------------
+This is a Helath checks of the AWS instance 
+2 types of checks Instance checks and System checks 
+	System checks
+	--------------
+	system is reachable or not checks the physical status of the server 
+	If this fails there might be an outage at the Physical location of the server
+	Instance check
+	---------------
+	it is at VM level, if the traffic is being accepted or not 
+	If this fails Reboot or Terminate and create a replacement 
+
+
+Strorage types 
+---------------
+1.Block storage
+----------------
+Stores the data by dividing the data into similar sized multiple blocks 
+Each block will be a seperate unit and have address in the system 
+This can be directly accessed by the system as a mounted value 
+We can read & write data only into particular blocks 
+This gives direct access to individual blocks 
+Any OS can read & write the data easily 
+We can use this for booting the OS 
+We can also use this for DB storage 
+SAN - Storage area network 
+This has to be mounted within the system
+
+2.File storage
+---------------
+Over network this can read & write data 
+here data is stored as a single piece of info 
+also called hierarchical storage 
+This can be accessed by multiple systems at same time 
+NAS -- uses NFS protocol 
+This has to be mounted within the system
+
+3.Object Storage
+-----------------
+Store and write data as an object 
+Here without mounting we can read & write the data to access storages 
+It will have both meta data & actual data 
+
+AWS storage services 
+---------------------
+EBS --> Elastic Block Store  
+EFS --> Elastic File store{NFS)
+FsX  --> File Store for Windows(SMB) 
+S3 --> Simple Storage Service 
+
+2.EBS -- Elastic Block Store 
+-----------------------------
+Root volume is stored in EBS format 
+Application data should not be stored here 
+If the OS is corrupted then the data also cannot be accessed 
+We can create additional disk for softwares or applications and we can mount the same to the EC2 instance 
+By doing this way even if the OS is corrupted the application data will not be lost 
+Each server will have it's own storage -- By default root storage are used fr OS booting 
+Also Each server have it's own volume with a capacity preset 
