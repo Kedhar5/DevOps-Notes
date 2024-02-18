@@ -267,3 +267,218 @@ We can create additional disk for softwares or applications and we can mount the
 By doing this way even if the OS is corrupted the application data will not be lost 
 Each server will have it's own storage -- By default root storage are used fr OS booting 
 Also Each server have it's own volume with a capacity preset 
+
+We use the root storage for booting purposes only and we create a new server with a specific storage 
+And that new server will be mounted to the initial server as an additional storage 
+So even if we create the root server or even if it crashes the additional storage remains and that can be mounted to a new server 
+we can use commands lsblk and df -kh to identify which storage is used for what 
+We can see where all the storage is divided to blocks and how is it used 
+
+Use case for Additional volume 
+-------------------------------
+Create a normal server and install Jenkins in it but dont start it. 
+If we start Jenkins It will be part of the root storage 
+We now create an additional volume and mount it to the EC2 instance 
+EC2 instance and EBS volume should be in same availability zone. If they are created differently then we cannot attach them.
+EBS volume creation
+--------------------
+EBS section --> Volumes --> create volume --> type(select SSD), size(Min 1GB Max 16TB), Availability Zone (Same as root storage) --> give a tag name --> create 
+for Provision iops i01 Min 4GB max 16TB
+for provision iops io2 Min 4GB max 64TB
+
+Attaching the volume 
+--------------------
+Select the volume --> Actions --> Attach Volume 
+Then we get all the servers present in the availability zone and we leave the device name as it is 
+Then give attach volume and the available volume will be shown as in use because it is attached to the EC2 now 
+now in the storage tab of the Root storage server we can see the attached EBS also 
+We have just attached the volume the EBS to EC2 Server now we need to mount it
+We need to 1st format the disk and then only we need to mount 
+sudo mkfd.ext4 /dev/xvdf is used format the disk to ext4 format 
+sudo mount /dev/xvdf /var/lib/jenkins --> Jenkins data will be loaded to Additional storage now 
+But this is a temporary storage 
+To make it permanent we need to make entry in /etc/fstab using the Device name or UUID it is recommended to use the UUID 
+sudo blkid is used to fing the UUID then we edit the fstab file with the same format 
+We have to then verify weather the entry works or not don't reboot the server without verifying 
+we need to unmount using the sudo umount /var/lib/jenkins then mount it again using sudo mount -a command 
+
+Increase the size of EBS volume when it is full 
+------------------------------------------------
+We can modify the size of EBS volume We can increase the size but cant decrease 
+ex:-- Volume --> vol name --> Action --> odify --> Change the size here we can also increase the performance 
+Even if we modify volume it is not allotted to the directory 
+we need to resize using the sudo resize2FS /dev/xvdf now the storage is mounted 
+There is a timeline to resize the volume again 
+Multi Attach EBS volume 
+-------------------------
+Same Vol can be attched to multiple Ec2 instances but they need to be in same availability zone 
+It is available only for provisioned iops1 and also has lot of limitations 
+
+Even if we terminate the EC2 instance the additional volume will be still present 
+
+EBS Snapshot 
+--------------
+This is a backup of the EBS volume it cannot be directly attached to the EC2 instance 
+To restore the snapshot cerate a new EBs volume and use this sanpshot as a template 
+Snapshots are to be taken on the basis of criticality 
+We can either do it manually or we can use the Life Cycle Manager 
+
+recover SSH access if the pem file is lost 
+--------------------------------------------
+If the Password Ayth is enabled then we can directly login
+Also we can use Instnace Connect but available for only a few AMI's 
+Else we can use session manager But the SSn agent should be installed in the server 
+pem file recovery 
+------------------
+step1 --> Detach the root volume and attch to a different server 
+step2 --> After mounting copy the latest public key to the new volume which is mounted temporarily 
+step3 --> detach the volume and attch it the old EC2 as root storage check the device name while this process 
+step4 --> Make a note that new server has to created in the same availabilityzone because we need to mount the volume for which same dns is required 
+step5 --> in the new server give sudo mount -o nouuild /dev/xvdf4 /newPublicKeyFile/ 
+		  Here nouuid is a must and should be use 
+step6 --> After adding the new public key in the authorized_keys using append from the copied public key 
+step7 --> detach the voulme and attach and attach to the old EC2 as root storage now we can access the old EC2 with the new pem file 
+
+EFS -- Elastic File System 
+-------------------------------
+It is a managed NFS service by AWS 
+Multiple systems can read & write data to this System 
+But they should be connected on network 
+Multiple Ec2 instances can read and write the data to EFS 
+Creating A EFS 
+------------------
+EFS --> Name & VPC --> create 
+Or else we can customize that too 
+EFS types --> one Zone, regional 
+We need to open NFS port such that the process can listen --> 2049 is the port number 
+If the port is not opened we cannot mount the EFS storage 
+After the creation we can 1st attch the volume to available server and then mount the same in the Instance 
+There is no limited capacity in EFS it will increase the capacity automatically 
+
+S3 --> Simple Storage Service 
+---------------------------------
+It is an object store, Without mounting we can upload and download objects to the storage 
+To use S3 use need to create S3 Bucket. In general buckets are used to store some data. Here we store objects 
+S3 is aglobal storage it can be accessed from anywhere and any amount of data can be stored here there is no limit 
+But there is a Max object size in S3 which is 5TB 
+No of S3 buckets in 1 AWS account --> 100 buckets 
+But this can be increased by working with AWS suppport team 
+Secure the data and avoid unauthorized access 
+Each file in the object will be given a link or address and static data can be stored here lke Images & Docs 
+Ex:-- Netflix App is also hosted in AWS and uses many AWS services and they use S3 for storing and accessing the data 
+use cases 
+1) Application Static Data 
+2) Application Logs 
+3) Application Backups 
+4) Archive/Historical data 
+
+S3 can be accessed from anywhere but S3 bucket need to be specified in which region it should be created 
+Bucket Creation 
+-------------------
+S3 --> Buckets --> create bucket --> Region, Bucket name(This should be unique name)
+Bucket name has some naming conventions too. Bucket name should be globally unique 
+After the creation we can store the objects in the S3 bucket 
+we can directlu upload the files to the S3 bucket from GUI CLI or API 
+For every file we can have a link given to us by AWS but by default public access is denied 
+As an object owner we can control who can access the object 
+We can serve the data directly from the internet 
+ACL, BucketPolicies, Block Public polocies are used to manage the permissions 
+ACL is vintage and BucketPolicies are saves in JSON format 
+To make object Public
+----------------------
+Bucket --> Permissions --> Enable ACL (this can be done a individual object access control)
+Now we can go to the object and in actions we can make the object Public 
+Also we need to turn off Block Public access 
+By making the above whoever has the object URL can access the file 
+But the above process gives access only for individual file 
+
+To avoid the huge process of following for every individual file we can use Bucket policies 
+We can have users with Specific access to access the particular objects 
+Bucket policies are defined in JSON format 
+The format consists of the following elements 
+resource --> to which resource we want to apply the policy 
+Action --> for every resource there is a action 
+Principal --> for whom we are giving the access it can be AWS account or an user 
+Effect --> allow or deny if access is not given it will deliberately deny the access 
+ARN --> Amazon Resource Name used to uniquely identify the resource name 
+there is a format for arn too
+arn:aws:s3:::bucketname/* --> Here * represents all the objects in the bucket
+We have a policy generator where we can generate the policy 
+here if we use /* in arn we can provide access to all the objects in the S3 bucket 
+or else in principal we can give specific user and in arn we can give arn of that particular object for specific user access 
+But here we need to get the object arn from the object details 
+we can write multiple statements and give specific access for specific opbjects 
+Also we can write a conditions where we can give access to systems ranging within particular IP's
+
+
+Service Quotas 
+---------------
+This is a AWS service which is used to find the AWS default quota value 
+
+Versioning 
+--------------
+This is used to maintain multiple versions of the same object. If this is enabled we can have backups of previous versions too. 
+By default this is disabled. If this is enabled differnt versions of the same object can be stored.
+
+Service classes 
+-----------------
+AWS stores data in different storage classes 
+ a. Standard --> Frequently accessed data will be stored in this storage class 
+ b. IA(Infrequent Access) --> Data that isn't accessed very frequently will be stored here 
+ c. One Zone IA --> data which is stored in a single Availability zone that isn't accessed frequently 
+ d. RRS(Reduced Redundancy Storage) --> Data which is not critical and which can reproduced is stored here. There is a chance that the data might be lost 
+ e. Glacier --> It is of 2 types Instant & Deep glacier 
+				Archival or Historical data will be stored here they can be used for security or Auditing purposes 
+
+Object Lifecycle Rules 
+---------------------------
+Objects which needs to be moved from one class to other after a particular amount of time 
+Advantage is that we don't need to go through individual objects to edit the class 
+Also the charges will be less and it will be cost optimized 
+Creation --> bucket --> Management --> create life cycle rule 
+life cycle name --> choose scope (all objects or few), Prefix (here we limit scope for few objects) 
+Then we can create a rule where we can move the object between classes within a specified amount of time 
+We can also have an option where we can keep the no.of versions we can keep 
+
+Replication Rules 
+--------------------
+Whatever objects are uploaded to 1 bucket will be uploaded to other S3 bucket 
+Cross region & same region replication is possible 
+AWS will charge for the additional bucket too 
+versioning should be enabled in both source and destination buckets to replicate objects 
+creation --> Bucket --> repliaction rules --> Scope(Same account or different account) --> IAM role Create new role or use existing role --> Copy/Donot copy existing objects --> Save 
+Without mounting objects in S3 can be accessed using AWS CLI API SDK etc...
+
+AWS sonwball
+--------------
+Physical device which is transported and data is copied from On prem device to AWS data centers 
+We need to create a request with AWS for the device delivery 
+It is a physical data transport solution 
+
+VPC -- Virtual Private cloud 
+------------------------------
+We can create a network in AWS and in that network we can create our servers  
+We can control Ip's and create sub networks 
+Network --> Group of servers that are inter-connected that can exchange the data with each other 
+network connection can be established using Cables / We can do it wirelessly 
+VPC is ur own network in AWS where u can create ur AWS resources 
+You have full access to control who hs access to your AWS resources 
+A defualt VPC is created by default when we create a AWS account 
+VPC is a regional level services which is shared among multiple available zones 
+Within Same network we can create multiple sub networks 
+Subnet should be residing in a single availability zone 
+we can create n number of subnets for a single VPC 
+there are 2 types of subnets Public and Private 
+We can add one or more subnets in each availability zone 
+Systems within a particular VPC can talk to each other without access to the internet 
+Route table is a place where we define the route which the VPC can reach 
+In default VPC all the subnets have route tables whcih are routed to internet gateway 
+We can create 5 VPC's within a region 
+
+When we create a network we need to define a range of network or IP in form of CIDR 
+CIDR --> Classless Inter Domain Routing 
+it is method for allocating Ip address and it's routing 
+
+172.31.0.0/n --> no of IP's possible 2 power (32 - n) 
+Not all the IP's will be available for usage in each subnet 1st four and last IP will be reserved by AWS 
+
