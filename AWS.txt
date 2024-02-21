@@ -479,6 +479,106 @@ When we create a network we need to define a range of network or IP in form of C
 CIDR --> Classless Inter Domain Routing 
 it is method for allocating Ip address and it's routing 
 
-172.31.0.0/n --> no of IP's possible 2 power (32 - n) 
+172.31.0.0/n --> no of IP's possible 2^(32-n) 
 Not all the IP's will be available for usage in each subnet 1st four and last IP will be reserved by AWS 
 
+VPC 
+ Subnets 
+	Public Subnets -- Route to internet Gateway 
+	Private Subnets 
+	
+ IGW(Internet Gateway)
+ 
+ RouteTable 
+
+CIDR --> Range where the IP addresses are defined, We define Network range in form of CIDR 
+RFC1918 address --> Private Ip's which are not accessible via the internet 
+address range 
+10.0.0.0 --> 10.255.255.255
+172.16.0.0 --> 172.31.255.255
+192.168.0.0 -->192.168.255.255
+
+VPC creation 
+--------------
+https://www.davidc.net/sites/default/subnets/subnets.html
+When we create a VPC route table also gets created in which we have the routes 
+This route table if it is mapped as local it can communicate within the network without internet 
+
+
+NACL -- Network Access Control List 
+------------------------------------
+This is a firewall at network level 
+This is similar to Security Group which is firewall at instance level 
+NACL allow and deny rules by default it denies everything 
+Also we can allow only specific sources 
+NACL is atateless so we have to give both Inbound & Outbound rules 
+NACL is created by default for every VPC 
+
+
+
+
+ELB -- Elastic Load Balancer
+------------------------------
+This is a fully managed load balancer from AWS 
+We also call this a s reverse proxy 
+We deploy our app to multiple servers to avoid single point of failure
+End users will access the load balancer then the request will be forwarded to the servers 
+If the load is high the request will be forwarded to multiple servers 
+Load Balancer ensures high availability & avoids server overload. It also performs the health checks 
+There are hardware / software based load balancers 
+Apache HTTPD & NGINX are some of the software based load balancer 
+
+ELB automatically distributes incoming traffic to multiple targets. Where the targets will be the Instances or servers where the applications are deployed 
+ELB can distribute traffic to multple Availability zone from the same region 
+ELB & EC2 should be in same region but can be in different availability zone 
+
+Types of Load Balancers 
+------------------------
+Network Load Balancer(Layer 4 LB)
+	Operates in the Connection Layer, It will just forward the request without intercepting the data 
+	Can handle Millions of requests per second with very low latency 
+	Is very potimized to handle sudden & volatile traffic patterns 
+
+Application Load Balancer(Layer 7 LB)
+	Operates at the request Level, Routes based on the content 
+	It intercpets the data which is being accessed 
+	We can also route the requests based on the context path 
+
+Classic Load Balancer 
+	This is a Legacy Old Balancer which is a older version of current load balancers 
+
+ELB Components 
+----------------
+Listeners
+	define the port or protocol whre the traffic will listen 
+	Atleast 1 Listener should be there in ELB 
+	We can have Rules or conditions in the listener 
+	Listener is nothing but a process to define in which port the request should be accessed 
+Target Groups 
+	Targets 
+	Logical Grouping of targets behind the Load Balancer 
+Health Checks 
+	This can allow traffic to be shifted away from failure instances 
+	It will ensure request traffic to be directed away from the failure instance 
+
+We create a Tomcat server in the Private Server and we access the Private Server we can use the Jump box server which is Public 
+Copy the git project to the Public Server and execute the project and build the war file
+using the scp command copy the war file to the webapps directory of the private server 
+scp -i ~/.pem target/warfile ec2-user@IP:/opt/tomcat/webapps 
+But we should open the port 8080 for all the sources so that we can access the application from anywhere 
+But since it is a private server we cannot access the application directly 
+We can setup a reverse proxy and we can let the user access the Load balancer 
+Also we create a server additionally and SCP the war file to the 2nd server 
+Now we have 2 private servers and Same app is deployed to both servers but we cannot access them since they are in Private servers 
+
+We need to create Target groups 1st before ELB creation 
+Load Balancing --> Target groups --> Instances (Select the Instances where the app is deployed) --> target group name & Select the protocol
+Select TCP protocol & give the port number --> select the VPC --> Select the Health check Options --> next --> Select the servers and create the target group 
+
+ELB creation 
+---------------
+Load balancer --> Network Load Balancer(Since performance is high) --> Balancer name --> Internet facing / Internal --> Select the same VPC as application servers & Select the Public subnets 
+Now we can create the security group in the same VPC and select the Listeners and routing 
+
+
+for Internet facing LB we need Public subnets 
