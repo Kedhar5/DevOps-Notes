@@ -575,10 +575,47 @@ We need to create Target groups 1st before ELB creation
 Load Balancing --> Target groups --> Instances (Select the Instances where the app is deployed) --> target group name & Select the protocol
 Select TCP protocol & give the port number --> select the VPC --> Select the Health check Options --> next --> Select the servers and create the target group 
 
-ELB creation 
----------------
+ELB creation -- Network Load Balancer 
+--------------------------------------
 Load balancer --> Network Load Balancer(Since performance is high) --> Balancer name --> Internet facing / Internal --> Select the same VPC as application servers & Select the Public subnets 
 Now we can create the security group in the same VPC and select the Listeners and routing 
 
 
 for Internet facing LB we need Public subnets 
+
+If we have a different application which needs to be accessed then we can use a listener on different port 
+Then we can route the request to the application or the Target group 
+Or we can create a new Load Balancer & Target group and whenever we get a request to this new LB we can forward it to new target group 
+
+As an end user we have difficulty to remember IP and dns name it will be difficult 
+So we have a concept called Domain name where we can access the application using the Domain name instead of IP and dns name 
+
+DNS --> Domain Name System 
+-----------------------------
+It is a naming system in Internet or it is a phonebook of internet 
+Instead of using the IP address to access the server we can use this human readable domain names to access the application 
+ex: www.amazon.com --> As an user we can use this and the DNS system will read this and translate to machine readable / accessible IP's
+
+DNS translates human readable address to machine readable IP address 
+So when we request to access using the dns first the request goes to dns resolver 
+dns resolvers are managed by the service providers 
+End users --> dns name or web address --> dns resolver --> root server --> TLD(top Level Domain) server --> Name server(Here mapping will be present) --> IP address is found 
+This is how the dns will work 
+dns root servers TLD servers are globally distributed servers they are not managed by AWS/ our admins 
+domains are not free of cost again and we need to puchase them from providers 
+After we create the domain we map the servers 
+Godaddy GoogleDNS Route53 are some of the dns providers 
+
+in the host file locally we can create an entry like 
+yourLoadBalancerIP LocalDomainName 
+we can make an entry like this and we can access the application using the Domain name 
+
+Route 53
+-------------
+AWS dns service which is a highly available & scalable AWS domain 
+If we already have a domain from different dns providers we can just create hosted zones instead of creating it again 
+Create Hosted zone --> dns name --> public hosted zone --> create 
+Then we map the AWS server or Load Balancer to this dns 
+create record --> Route traffic to Load Balancer --> Select the region and Load balancer 
+Now the mapping is complete and we can access the Loadbalancer using the dns which we have created now 
+After we create Hosted zone the name servers should be given in the dns provider so that it can be managed globally 

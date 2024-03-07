@@ -1,0 +1,191 @@
+Docker
+-------
+Docker is a containerization tool.
+Using Docker we can build,ship, run any processas a container 
+
+Container --> Conatiner has everything which is required for your application or Software 
+here everything means required environments + Softwares + Configurations + Your Code 
+
+Using Docker we can build a package(Image) which can have softwares + Configurations + Code + Dependencies 
+We can ship the package from one server to other server and we can deploy the app as a container 
+
+Containerization Deployment 
+-----------------------------
+Physical/Virtual Server --> OS --> Containerization tool --> Containers 
+Each container is isolated from other, Containers are fast and light weight 
+Containers will not have OS they just have OS libraries to interact with Kernel 
+Docker helps us to deploy multiple apps in same OS by isolating the all the process 
+Docker helps us to isolate the Containers at the OS level 
+
+In order to create a conatiner we need to create a container Image 
+We can store these container in Artifactory repositorys 
+
+Docker 2 Notes yet to be written
+
+Docker Installation
+----------------------
+sudo apt update -y
+sudo apt install docker.io -y
+Even after installation we donot have permission to use docker so we add ubuntu user to docker dameon 
+sudo usermod -aG docker ubuntu
+
+Now docker is installed successfully
+/var/lib/docker is the home directory 
+
+Architecture 
+----------------
+Docker daemon --> docker s/w process that listens for docker API request 
+It manages images conatiners networks volumes etc..
+
+Docker client (CLI) --> Primary way where we can interact with docker 
+When we use certain commands like docker run the client sends these commands to dockerd.
+Docker CLI uses Docker API internally 
+
+When we install docker it will have both Docker CLI and DockerDaemon 
+We can have only Docker CLi outside the system and still we can interact with remote Docker host 
+
+Docker registery --> These are artifactory repository to store artifacts or Images 
+Docker registery has Docker repository and the repository holds the Images 
+These can be hosted by a third party application too or we can set up for ourself 
+
+Docker Hub is the community or public registery 
+
+<registery Server/repo:tag>
+ex--> nexus.tcs.com/Tomcat:1.0
+
+If we donot mention tag it will pull the latest version of the tag 
+In docker hub we have multiple images this is created and managed by Docker community 
+If we donot mention the registery then also the address will reach Docker hub 
+
+So for example if we create a container using a Tomcat tag then Tomcat will be running in our container 
+
+Docker Flow
+------------
+Docker file is a normal text file which has instructions to create a Docker Image 
+The Image will be created and then it can be stored in Docker Registery 
+In Docker Hub we can create a Registery but only Public repository can be created 
+So any one can pull the images from the public repository 
+But for own apps we need to store the images in private repositories so we can use 3rd party apps like Nexus JFrog 
+Here Image is nothing but a package 
+
+One Docker Image is based on other image with additional customization 
+We can build our own image by using Tomcat image as a base 
+To Build our own in=mage we need to use Docker file which has all the instructions 
+We can Create Move Start Delete the containers Using Docker CLI or API 
+
+Docker network is used to establish the connection between docker containers and outside world usinf Docker Daemon 
+
+docker ps and docker container ls are use used to get the existing containers 
+
+To pull the container from a registery 
+docker pull <image>
+docker pull <registeryserver/repoName:tag>
+
+docker pull nginx --> This will pull latest version of nginx from the Docker Hub 
+
+If we use docker create it will juest create the container 
+If we use docker run it will both create and run the container 
+
+docker create --name <containername> -p <hostPort:containerPort> <image>
+here -p is called port binding 
+
+One container in docker can communicate ith other process this is called inter process communication
+
+docker run -d --name <containername> -p <hostPort:containerPort> <image>
+we already have a nginx image in our host so using docker run e can now create a Container 
+here -d is used because if we use it our conatiner will start in detached mode 
+
+docker run -d --name nginxapp -p 80:80 nginx 
+docker inspect <containerName> 
+this will give multiple info about the container 
+curl -v 172.17.0.2:80 --> we can access the conatiner using the command as this 
+
+We need to open the host port in AWS when we need to use the web application 
+
+hub.docker.com --> Here we can create a account for the registery 
+after creating the account we can create the repositories in docker hub 
+
+This is the repo we have created in Docker Hub 
+kedhar5/mavenwebapplication
+
+When we build image it will be as 
+docker build -t <username/reponame:tag>
+
+for application it will be as 
+<registeryEndPoint/repoName:tag>
+nexus.tcs.com/repoName:tag 
+
+Dockerfile 
+-------------
+Docker file is a simple text file with instructions 
+
+FROM tomcat:8.0.21-jre8
+COPY target/maven-web-application.war /usr/local/tomcat/webapps/maven-web-application.war
+
+The above Dockerfile indicates that we are getting the Tomcat base image from Docker hub initially 
+then the war file which is present in target directory will be copied to the webapps directory 
+
+So FROM instruction indicates what is the parent image we need to use, So we are using Tomcat image which is built by Docker community \
+/usr/local/tomcat we can get this path from the documentation of the image in Docker Hub 
+
+docker build -t <image> <buildcontext>
+build conetxt is set of files located at a path 
+build command expects Dockerfile to be present in the directory 
+docker build -t kedhar5/mavenwebapplication:1 .
+Here . represents the current folder or context path 
+
+1st we need to install maven to create the package 
+sudo apt install maven --> used to install maven 
+then we use mvn clean package to create the package 
+then we can use docker build to build the image 
+
+ubuntu@ip-172-31-0-208:~/maven-web-application$ docker build -t kedhar5/mavenwebapplication:1 .
+DEPRECATED: The legacy builder is deprecated and will be removed in a future release.
+            Install the buildx component to build images with BuildKit:
+            https://docs.docker.com/go/buildx/
+
+Sending build context to Docker daemon  11.77MB
+Step 1/2 : FROM tomcat:8.0.21-jre8
+ ---> a0b976f32c18
+Step 2/2 : COPY target/maven-web-application.war /usr/local/tomcat/webapps/maven-web-application.war
+ ---> cf03a1e3c108
+Successfully built cf03a1e3c108
+Successfully tagged kedhar5/mavenwebapplication:1
+
+docker history kedhar5/mavenwebapplication:1
+We can use the above command to verify the history of a particular image 
+
+docker push kedhar5/mavenwebapplication:1
+This is used to push the image to our repo in docker hub
+But initially it will be denied so we need to provide access as below 
+
+docker login -u <username> -p <password> </registery endpoint>
+if we use docker hub no need to use registery end point 
+
+docker login -u kedhar5 -p Kedhar@464
+docker push kedhar5/mavenwebapplication:1 --> Now we can use this so that image will be pushed to our repo 
+
+So the Whole process as follows 
+Clone the code from GitHub 
+Create a dockerhub account and create a repository 
+create a docker file and give the instructions in it
+create the war file using maven build tool 
+use docker build to build the image 
+use docker login to login to the registery 
+use docker push to push the image to the registery 
+
+Now that the image is created we can deploy that in a different server also 
+we can use docker run to create and deploy the application 
+docker run --name mavenwebapp -d -p 8080:8080 kedhar5/mavenwebapplication:1
+docker inspect mavenwebapp --> Used to get the container IP 
+We can use container Ip to access the application internally 
+
+To access the application we have created on the image we need to use host Ip and Host port 
+
+So to summarize we have pulled a container from a public registery and we user docker run command to run the conatiner 
+We have open port 8080 in AWS and then we have accessed the application 
+All of this was done very raipdly 
+
+
+
+
