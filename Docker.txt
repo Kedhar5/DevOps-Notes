@@ -245,6 +245,8 @@ docker load -i image.tar --> load the image from the tar file
 
 container commands  
 --------------------
+Run time instance or a process of an Image is called a container 
+
 docker ps --> lists out the running containers 
 
 docker ps -a --> lists out all types of commands 
@@ -256,6 +258,47 @@ docker start <containerId/name> --> start the container
 
 docker stop <containerID> --> stop the container 
 
+docker restart <containerID> --> restart the container 
+
 docker rm <containerID> --> remove the container 
 docker rm -f <containerID> --> forcefully remove the container 
+
+docker create --name <containername> -p <host:container> <image> 
+docker run --name <containername> -p <host:container> <image> 
+docker container ls --> list all the containers 
+
+docker rm <containerID> --> Container needs to be in stopped state 
+
+docker ps -aq --> gives just the container ID's/w
+
+if we donot mention --name tag in docker run it will give some random name 
+So name and Host port should be different for multiple containers 
+
+docker rename <oldname> <new name> --> rename a container 
+
+docker kill <containerID> --> It will kill the process without any grace period 
+	Difference b/w kill and stop is stop allows the running transaction until it is completed then stops the conatiner smoothly
+	but kill command directly kills the container 
+
+docker pause <containerName> --> Pause the container
+
+docker unpause <containerName> --> Unpause the container 
+
+docker logs <containerName> --> gets the stdout or stderror logs from the job
+
+docker exec <containerName> linux Command --> Linux command will work on the container 
+	ex:-- docker exec mavenwebapp ls -lar --> lists out all the folders in the container 
+
+docker exec -it <containername> bash --> interact with the shell of the container 
+to come out of the container we can use exit command 
+
+docker top <containerName> --> diaplays the top running process of container 
+
+docker stats <containerName> --> Displays the container stats 
+
+docker cp --> copies files from src to dest 
+	docker cp <containerName>:<dest directory> <fileName> 
+	docker cp <fileName> <containerName>:<destPath in the Conatiner>
+
+docker commit --> creates a image based on the container 
 
