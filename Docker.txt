@@ -186,6 +186,76 @@ So to summarize we have pulled a container from a public registery and we user d
 We have open port 8080 in AWS and then we have accessed the application 
 All of this was done very raipdly 
 
+Image commands 
+----------------
+Image is a package with everything that are required to run your application 
 
+docker images --> How many images are there in our local system 
+docker images -q --> displays only image ID's
 
+docker pull <image> --> pull image from a registery end point 
+	docker pull nexus.com/mavenapp:1
+
+docker login --username <username> --password <password> <registeryServer>
+docker login -u <username -p <password> <registeryServer>
+	docker login -u admin -p admin@5 nexus.com 
+
+docker help --> lists out all the options for commands 
+
+docker history <image> --> Lists out the layers of the docker image 
+
+docker build -t <image> <buildContext>
+	docker build -t kedhar5/mavenwebapp:1 .
+	Here . represent the current working directory 
+	Here this also expects the Dockerfile 
+	We can also use a different file instead of Dockerfile then 
+	docker build -f <filename> -t <image>
+
+docker push <image>
+	docker push kedhar5/mavenwebapp:1
+
+docker inspect <imageID or imageTag> --> details of the image 
+
+docker rmi <imageID> or docker image rm <imageID> --> delete the image in the local host 
+
+docker rmi imageID1 ImageID2 --> delete multiple images 
+
+dangling image --> Image that doesn't have repository and tag 
+	docker images --filter "dangling=true" --> lists out just the dangling images 
+
+docker rmi -f $(docker images -q) --> Delete all images which doesnt have a container 
+
+docker system prune 
+docker image prune 
+	docker image prune -a --> deletes all unused images 
+docker container prune 
+docker network prune 
+docker volume prune 
+All the prune commands are cleanup commands 
+
+docker run -d --name <ContainerName> -p hostport:containerPort registery:tag 
+	docker run -d javawebapp -p 8080:8080 kedhar5/javawebapp:1 
+
+docker tag --> create a tag that refers to an image 
+	docker tag imageID registery/Repository:tag 
+	We can tag dangling images using this 
+	
+docker save <imageTag> -o image.tar --> the docker image can be saved as a tar file 
+docker load -i image.tar --> load the image from the tar file 
+
+container commands  
+--------------------
+docker ps --> lists out the running containers 
+
+docker ps -a --> lists out all types of commands 
+
+docker create --name <createContainer> -P <Hostport:containerport> <image>
+	This is for creating a container without starting
+
+docker start <containerId/name> --> start the container 
+
+docker stop <containerID> --> stop the container 
+
+docker rm <containerID> --> remove the container 
+docker rm -f <containerID> --> forcefully remove the container 
 
