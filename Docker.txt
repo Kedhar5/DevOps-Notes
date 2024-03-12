@@ -399,34 +399,55 @@ So for CMD and ENTRYPOINT shell form is not recommended
 So when the process is stopped the main process will be notified about it and can release the resources 
 RUN is used while building the image so it will just install the required softwares so need to worry when we stop the process 
 
+Once the Dockerfile is changed and the image is built again then layer gets invalidated and it will be created again
+if the same image is going to be created again then the data for building the layers will be retrieved from cache and the image will be created very fast 
+Build time can be improved by re-arranging the instructions in the Dockerfile 
 
-ENTRYPOINT 	
+ENTRYPOINT will be executed while starting the container 
+	CMD is used to start the process 
+	ENTRYPOINT will allow you to configure the container to be run as a executable 
+	CMD can be overridden at run-time but ENTRYPOINT cannot be overridden
+	for example if we use CMD ["test.txt"} at the end of Dockerfile and then run the container the data present will be displayed 
+	But if we run as docker run image ls -lar --> ls -lar will be executed and data will be displayed 
+	Where as if we have ENTRYPOINT {"test.txt"] then run the conatiner then the data in test file will be displayed 
+	but if we use ENTRYPOINT ["test.txt'] ls -lar --> Here too contents of test file will be displayed upon running 
+	if we use both CMD and ENTRYPOINT then CMD will be used as argument for entrypoint 
 	
+ENV is used to set the Environment Variables to the value 
+	The value will be in the Variable for all the Docker builds and in the containers 
+	ENV <key> <Value> 
+	ENV <key>=<path> 
+	ex: ENV PROJECT_HOME=/app/test 
+	ENV variables can be available after the image is built and the when then container is running
+	
+ARG instructions is used to set the arguments or variables 
+	We can define arguments which user can pass at the build time 
+	ARG values are not available after image is bult and a runing container dont have access to the ARG variables 
+	ARG is the only instruction which is allowed to be defined before FROM instruction 
+	docker build --build-arg <arg=value> -t imagename contextPath
+	
+WORKDIR is used to set the working directory for an image and a container 
+	it is similar to cd command 
+	all the instructions after the ORKDIR command will be run in the WORKDIR directory 
+	WORKDIR <directory>
+	ex: WORKDIR /app/test 
+	if $Project_Home=/app/test then 
+	WORKDIR $Project_Home 
+	If required we can use WORKDIR can be used multiple times in a single Dockerfile
+	if the directory doesn't exist then the directory will be created and that will be used as the Working directory 
+	
+EXPOSE is used to tell on which port the container listens 
+	It is not like setting the port it is just for documentation purposes 
+	EXPOSE <port>/<protocol>
+	EXPOSE 80/udp
+	EXPOSE 80/tcp
+	It is a documentaion between the person who is building the image and one who is running the container
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Assignment
-----------
-Build and deploy Maven-web-application 
-Create mvn clean package 
-then docker build --> Build the image 
-then login/Authenticate 
-Docker push to a Registery 
-Docker run to run the container 
-Create a CICD pipeline for all the above things 
+USER we can set the username or UID as which user the container has to be started 
+	This will not create a user it will just set the user 
+	if we want to create the create the user before hand we can use the useradd command in the RUN instruction 
+	USERADD kedhar -d /app/test -s /bin/bash 
+	now our user is created and has access to bash 
+	then we can switch the user using USER kedhar 
+	Now all the sub sequent instructions will be run as USER kedhar 
+	
