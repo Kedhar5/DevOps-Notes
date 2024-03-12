@@ -302,3 +302,131 @@ docker cp --> copies files from src to dest
 
 docker commit --> creates a image based on the container 
 
+Dockerfile 
+------------
+Simple text file which contains instructions build a Docker Image.
+Docker Daemon will read the instruction from the file and will build the image accordingly
+FROM MAINTAINER COPY ADD CMD RUN ENTRYPOINT LABEL ARG ENV etc.. are some of the instructions 
+Docker will process the instructions from top to bottom 
+
+Dockerfile is the default name for Dockerfile 
+if we have a specific file we can use -f option 
+
+format of the file is as follows 
+INSTRUCTION argument
+
+Instructions are not case sensitive but it is a convention to write them in uppercase 
+
+docker run -d --name ubuntucontainer ubuntu 
+	This command will create a image based on ubuntu base image 
+	if the image is not available locally it will reach dockerhub by default
+
+FROM instructions gives us the Base image 
+	whatever image name we mention in the instruction it will be used as a base image 
+	All the following instructions will be run on the same build stage 
+	We should only have FROM as the first instruction in Dockerfile 
+	Only ARG can appear before Dockerfile
+	FROM <image>
+	<image> --> Registery/Repository:tag 
+	
+MAINTAINER is used to set the Author Field of generated image 
+	MAINTAINER <name> 
+	
+LABEL it will add the metadata to the image 
+	It is like a key-value pair
+	An image can have more than 1 label 
+	LABEL <key>=<value>
+	LABEL name="kedhar"
+	
+COPY It copies files/folders from source to destination 
+	COPY <src> <dest>
+	COPY target/mavenwebapp.war usr/local/tomcat/webapps/mavenwebapp.war 
+	src should be relative to the build path
+	even if the file exists in the system it should be relative to the build context 
+	The difference between COPY and docker cp is COPY copies the file from local to Image 
+	docker cp is a command which copies files from system to container and vice versa
+
+ADD It adds files from source to dest 
+	ADD can copy local files and folders also it can copy files from remote sources
+	We can use URL from the web source tar and zip files can be copied using this 
+	tar file will be directly extracted using ADD
+
+RUN executes any command in a new layer on top of current image and then the results will be committed
+	RUN will be execited while building the image 
+	We can multiple RUN instructions in a Dockerfile 
+	We use this to install softwares and configurations while building a image 
+	We can also run scripts using this instruction 
+	ex: RUN <command> <args>
+	RUN apt install git wget curl -y 
+	RUN mkdir /opt/test
+	We can use shell features it we use shell form like && etc..
+
+The difference between RUN and docker run is RUN is a instruction used to install softwares 
+docker run is used to run the container 
+	
+CMD this is used ro run command or script 
+	ex: CMD sh test.sh 
+	CMD catalina.sh run 
+	RUN , CMD , ENTRYPOINT can run in both shell form and executable form 
+	CMD instruction will execute while starting the container
+	ex: CMD ["catalina.sh","run"]
+	As per the above example catalina.sh script run whenever the container is started 
+	We can have numerous number of CMD in Dockerfile but only the last CMD instruction will run while starting the container 
+	
+	
+shellform
+-------------
+RUN <command> <args>
+CMD <command> <args>
+
+Internally the command defined in shell form will be executed as below 
+The process will run under a shell as below 
+/bin/bash -c <command> <arg1> <arg2> 
+So the actual process will be running as a child process 
+
+executable form 
+----------------------
+RUN ["<executable","<arg1>","<arg2>"]
+CMD ["<executable","<arg1>","<arg2>"]
+
+Internally the command defined in executable form will run as below 
+<executable> <arg1> <arg2>
+ex: apt install wget curl -y 
+This be run as the main process or parent process unlike shell form 
+
+The difference is CMD and ENTRYPOINT will start after starting the container 
+So for CMD and ENTRYPOINT shell form is not recommended 
+So when the process is stopped the main process will be notified about it and can release the resources 
+RUN is used while building the image so it will just install the required softwares so need to worry when we stop the process 
+
+
+ENTRYPOINT 	
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Assignment
+----------
+Build and deploy Maven-web-application 
+Create mvn clean package 
+then docker build --> Build the image 
+then login/Authenticate 
+Docker push to a Registery 
+Docker run to run the container 
+Create a CICD pipeline for all the above things 
