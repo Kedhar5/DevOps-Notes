@@ -451,3 +451,99 @@ USER we can set the username or UID as which user the container has to be starte
 	then we can switch the user using USER kedhar 
 	Now all the sub sequent instructions will be run as USER kedhar 
 	
+Best practices while creating Images 
+-------------------------------------
+1)Use alpine based base images --> Alpine is a Linux distribution and is very light library and size of image is very less 
+While puhsing and pulling images it will be very fast by using alpine 
+In case of alpine apk is the package manager same as apt for Ubuntu and yum for Linux 
+Alpine based image wont have bash shell it just has sh shell 
+docker exec -it ContainerName sh --> to execute the commands inside sh shell 
+
+2)Don't install unnecessary s/w or packages in the image while building 
+
+3)Don't copy unnecessary files and folders to your images 
+
+4)in .dockerignore file we can mention the files which need not be in the image 
+We can mention those in the file and they will be ignored while building the image 
+
+5)Try to reduce the no.of layers by chaining the commands such that the build time is improved we can use && for chaining 
+
+6)Run the process as a non root user so that someone cant connect to the user shell 
+
+7)Use official images as base images so that we can avoid any malicious activity 
+
+8)try to scan the images before pushing into the artifactory 
+	We can identify the security vulnerabilities and find out if any 
+	trivy is one such tool used for scanning 
+	clair is another scanner for the same purpose 
+	https://aquasecurity.github.io/trivy/v0.49/getting-started/installation/
+	https://quay.github.io/clair/
+
+9)Use multi stage docker builds to reduce the size of final image 
+
+Python uses pip packaage manager for internal dependencies 
+Flask process listens on 5000 port on default 
+Flask is a frame work used by python 
+
+Multi Stage Docker Build 
+-------------------------
+We can use multiple FROM statements in a Docker file 
+Each FROM can use a different base and each FROM creates a differnt stage 
+We can selectively copy whatever files we want from 1 stage to next 
+
+As an example using maven we can create a war file for Java based project 
+in stage 1 we use maven as base we set set WORKDIR and create war file in this stage 
+We can just copy the war file from this stage 
+
+In stage 2 we can copy the war file as below 
+COPY --from=0 /targer/.war /usr/local/tomcat/.war 
+So the war file from stage 0 will be copied to the current stage 
+Also Maven local repos and other unnecessary thing will not be copied to next stage 
+So overall we can reduce the sie of image 
+
+ECR --> Elastic Container Registery 
+--------------------------------------
+It is a fully managed registery by AWS 
+Docker will work with only secure registeries Registeries need to have SSL certificates 
+
+In ECR we can directly create a repo in the registery and we can pull and push the images easily 
+We can setup Registeries by creating servers and using Nexus/JFrog as Artifactory repositories 
+In Fully Managed Registeries we need not create the servers etc.. We can just rely on AWS 
+We need not worry of availability and scalability of the service 
+
+Using the ECR service we can create a repository and there we can store our artifacts or images 
+ECR will eliminate the need to operate and mange the On premise registeries 
+ECR transfers images over HTTPS protocols 
+ECR can be integrated with other services like EKS Lambda etc..
+We pay only for the amount of data we are storing in the repo and data transfer fee 
+
+AES --> ECR --> Get started --> Create Repository --> Public / Private --> repo name 
+Tag immutability(On/Off) --> Prevents re-writing the existing image with same tag 
+It will avoid the image being pushed and data being rewritten with same tag 
+
+So we have created a repository in ECR now so we can build tag push and pull the images now 
+before doing all thet we need to authenticate the AWS with build server 
+In order to authenticate with ECR we need a token 
+docker login -u AWS -p <token> <ECR end point> 
+AWS gives us the steps to Authenticate with ECR too 
+
+Before doing authentication we need to install AWS CLI in the Docker system 
+sudo apt install awscli --> AWS CLI will be installed 
+Even after installling AWS CLI we dont have access to AWS services on Ubuntu system 
+
+We can create a IAM role and we can attach the role
+iAM --> Create role --> AWS service --> EC2 --> Policies( ContainerRegistery full / read only access) --> Name --> create role 
+If we give read only policy we can pull but cant push the images 
+Now role is created we need to attach the role to EC2 as following 
+Select the build server --> Action --> security --> Add role 
+Now the security issue is sorted 
+Now we can authenticate the login and push the image to ECR 
+
+For the deployment server create another IAM role with container read only access and attch it to the EC2 deployment server 
+Now we can authenticate the credentials in EC2 
+AWS ECR authentication is valid for just 12 hours 
+
+Assignment 
+---------------
+Create a pipleine so that we can pull and push images from ECR
+Custom Tomcat Image by using all the best practises
