@@ -543,7 +543,137 @@ For the deployment server create another IAM role with container read only acces
 Now we can authenticate the credentials in EC2 
 AWS ECR authentication is valid for just 12 hours 
 
-Assignment 
+Monolithic & Miicro Services Architecture 
+------------------------------------------
+These are not Docker concepts they are developmental approach 
+
+Monolithic --> Single Code base, All the modules in the same base or SCM tool 
+GUI API and database all the code will be present in the same code base
+It has a single executable or deployable package 
+Advantages 
+-----------
+1. Easy to deploy 
+2. Easy to trace the errors and debugging is easy too 
+Disadvantages 
+--------------
+1. difficult to modify the source code 
+2. All the modules are tightly coupled 
+3. redeploy entire app with each update 
+4. Single bug can bring down the app 
+5. Scaling the app is difficult 
+6.Change in 1 module can change other modules too because they are tightly coupled 
+
+Microservices --> developmental technique which arranges an app as a collection of loosely coupled services 
+here each module can be maintained individually
+Each microservice performs specific task and communicates using API's 
+Advantages 
+-----------
+1. Each service is looesly coupled 
+2. Easy to understand & modify 
+3. Better deployments because of individual modules 
+4. Each module can be scaled independently 
+5. Each service can be developed using any new technology 
+
+Disadvantages
+--------------
+1. communication between service is difficult 
+	since everything is independent using of API's for every communication will be difficult 
+2. Integration testing is difficult 
+3. debugging is difficult 
+4. Deployment challenges --> app needs coordination among multiple services it is not straight forward 
+
+Docker Networks 
+--------------------
+By default there are three types of networks They are 
+1. Bridge 
+2. Host 
+3. none 
+
+Bridge 
+-------
+It is default network for a docker container 
+If the conatiners are on same network the inter container communication is possible using container Ip and port number 
+We cannot contact other containers using container name 
+Container IP's are dynamic and name will be constant 
+We can create own our own private docker network as follows 
+	docker network create -d bridge <networkName> 
+We can use the network to create containers as follows 
+	docker run -d --name <containerName> -p host:container --network <NetworkName> <image> 
+Containers built on diffrent networks cannot communicate between each other 
+If we use a custom network we can contact containers of that network using the container name instead of IP 
+A single container can be attached to multiple networks as follows 
+	docker network connect <NetworkName> <ContainerName> 
+
+Host Network 
+-------------
+If we create our container here there will be no container IP 
+There wont be any isolation between containers 
+We can run the containers without port binding 
+Two containers cannot listen on the same port here 
+
+None Network 
+-------------
+If we create our container here there won't be any IP too.
+
+Scope of bridge network is local so we use overlay network for communication between containers in different servers 
+
+Docker Volumes
 ---------------
-Create a pipleine so that we can pull and push images from ECR
-Custom Tomcat Image by using all the best practises
+Every container has it's own file system and the file system exists as long as the container exists 
+Statefull Application --> Application which is going to generate some data and stores and uses it 
+ex :-- databases like MySql Oracle Mongo 
+Stateless Application --> application which doesnot generate and store any data 
+
+We need to check if the Database is up and running for Statefull applications 
+Database can be anywhere and databases will be also available as a container 
+
+Docker 17 yet to be written 
+
+Once we mount the file or folder all the data will be present in the container will be present in the bind mount folder in Host too 
+
+Volumes 
+---------
+Volumes are the preferred mechanism for storing the data for Docker 
+Volumes are completely managed by docker so has many advantages over Bind mounts 
+Voulmes are easy to backup or easy to be migrated 
+Volumes work on both Windows and Linux containers 
+Volume drivers will allow remote machines to make changes to volumes 
+When we are using volumes a new directory will be created in Docker container and it will be managed by Docker 
+
+docker volume ls --> lists out the volumes in the docker system 
+
+Named Volumes 
+--------------
+Volumes which can be reused while creating a new container using the existing data 
+Volume details will be managed by Docker itself and within docker 
+
+docker volume create -d <driver> <volumeName> --> a new volume will be created 
+By default we have only local driver 
+docker volume create local mongovol --> voume called mongovol will be created 
+
+to attach the volume 
+docker run -d --name <contName> -v volumeName:FolderInContainer  <image> 
+docker run -d --name <contName> -v volumeName:/data/db  <image> 
+
+By installing plugins/drivers we can create volumes on Azure/AWS cloud 
+
+We can install ebs drivers so that ebs volumes can be monuted with the container 
+docker volume create ebs <VolumeName> --> uses a remote driver 
+
+Docker Compose 
+---------------
+Notes need to be written here 
+
+Compose software needs to be installed in the Docker system 
+sudo apt install docker-compose --> install compose 
+compose will expect compose file with default name in the current working directory 
+If the compose file is not presnt in the directory then an error will be thrown 
+if we have a diffent name compose file we can use as follows 
+docker-compose -f docker-app.yaml config --> Checks the compose file for any errors 
+
+docker-compose compose.yml config --> Checks the configurations of the compose file 
+docker-compose create --> Creates network volume services 
+docker-compose up -d --> creates and starts the conatiners volumes networks 
+docker-compose stop --> stops the containers which are created by the compose file 
+docker-compose start --> starts the container which are in the compose file 
+docker-compose down --> deletes the containers,networks within scope of compose file 
