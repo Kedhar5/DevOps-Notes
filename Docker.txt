@@ -677,3 +677,44 @@ docker-compose up -d --> creates and starts the conatiners volumes networks
 docker-compose stop --> stops the containers which are created by the compose file 
 docker-compose start --> starts the container which are in the compose file 
 docker-compose down --> deletes the containers,networks within scope of compose file 
+
+Docker Swarm 
+--------------
+It is a container orchestration software 
+If so much traffic comes to a container it will be degraded so we need to scale the application and we need the replicas for the same container 
+We need a tool who can schedule and manage the container if something goes wrong to another system 
+
+Docker swarm is a cluseter management system embedded within Docker 
+Cluster is a group of Managers and Workers 
+Master schedules the task and manages it 
+
+Advantages 
+------------
+Cluster Management 
+Declarative design --> Declare the requirements for your system 
+Scaling 
+Desired state reconsilation 
+Multi Host Networking 
+Service discovery 
+Load balancing 
+
+Docker swarm cluster --> Group of dockers engines/nodes/servers/daemons 
+
+Master nodes --> Responsible for assigning and managing the containers on the clusetr nodes 
+
+Worker nodes --> Nodes where the containers will be running 
+
+In order to achieve high tolerance we need to have multiple master nodes 
+If master node goes wrong then existing nodes work fine but new nodes will not be managed 
+
+Atleast 3 masters are required according to the algorithm inbuilt in docker swarm 
+Raft Consensus Algorithm is the inbulilt algorithm 
+
+TCP 2377 TCP UPD 7946 UDP 4789 ports need to be opened in the Docker server 
+
+docker swarm init --> Initialize Docker Swarm 
+docker node ls --> list of Nodes that are part of the cluster 
+docker swarm join-token manager --> gets the Manager token 
+docker swarm join-token worker --> gets the worker token 
+
+Swarm related commands cannot be run on worker 
