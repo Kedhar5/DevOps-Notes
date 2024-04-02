@@ -1,0 +1,133 @@
+Kubernetes/K8s
+----------------
+K8s is a "open source Container Orchestration software" tool 
+Responsibilities include Container deployment, Scaling Descaling of containers & Load balancing 
+K8s can be considered as an alternative for Docker Swarm 
+K8s is written in GoLang and we can use CLI for interacting with Kubernetes 
+
+Current stable version of Kubernetes is v1.29 
+https://kubernetes.io/ 
+https://kubernetes.io/docs/home/
+
+Advantages of K8s
+------------------
+* Schedule the containers automatically 
+* Self healing capabilities 
+* Automated rollout & rollback 
+* Horizontal scaling and Load Balancing 
+* Service Discovery
+* Storage Orchestration 
+
+K8s Architecture 
+-----------------
+K8s is implemented in a cluster computing background 
+Cluster can be created with one or more nodes as managers and rest of them as workers 
+We can set up the clusters anywhere locally or on cloud 
+
+In each and every node in a cluster we need to have a container runtime 
+Container Runtime is a software to create and manage the containers 
+Node can be a physical machine or Virtual machine 
+We need to install Container runtime in each node present in the cluster 
+Docker is one example for Container runtime software 
+
+K8s APi resources/Objects 
+---------------------------
+Pods 
+Deployments 
+Services 
+ConfigMap 
+Secret 
+Replica set 
+Replication Controller 
+
+API server is the frontend for Kubernetes 
+API servers will interact with K8s APIs 
+Kubectl is the CLI for K8s 
+
+Kubectl will make API calls for Control/Master pane node 
+We can use Kubectl, GUI & Client Libraries to interact with control pane node 
+
+ETCD --> Distributed database of K8s, all the cluster values will be stored here 
+Some of the data stored is Job scheduling information, Pods, State info etc..
+
+Scheduler --> Repsonsible for scheduling the pods on nodes on the cluster 
+
+Kubelet --> node agent that ensures the health of the container 
+
+Kubeproxy --> helps us to have network proxy and load balancer in the same worker node 
+
+
+Types of Clusters 
+------------------
+1.Self Managed K8s clusters 
+Individual needs to manage the K8s cluster here 
+We need to install servers, services, installations etc.. 
+Automatic creation of nodes and deletion of unhealthy node is not possible in this scenario 
+	a.Single Node/Local K8s cluster 
+	Only one node will be present here 
+	This node will act as both Master and Worker 
+	This is mostly used for local developmental purposes
+	
+	b.Multi Node K8s Cluster
+	Here Master will be seperate and Worker will be seperate 
+	
+
+2.Managed(Fully) K8s clusters --> Provided by Cloud service providers 
+These are highly available and scalable 
+Maximum K8s will recreate pods into someother nodes 
+EKS --> Elastic Kubernetes Service (AWS Cloud) 
+
+Self Managed K8s Cluster using kubeadm 
+---------------------------------------
+Master --> t2.medium --> Open all traffic for particular range 
+2 Workers --> t2.micro --> Open the worker ports 
+
+Use the Installation file to follow the commands 
+
+Kubernetes Objects / K8s API Resources 
+---------------------------------------
+These are the entities of the K8s system . k8s will use this entities to represent the state of your cluster 
+
+Node
+NameSpace
+Pod
+Service 
+ReplicationController
+ReplicaSet
+DaemonSet
+Deployment 
+StatefulSet 
+HorizontalPodAutoScaler
+
+Service 
+Ingress 
+NetworkPolicies 
+
+PersistentVolume
+PersistentVolumeClaim
+StorageClasses
+
+ConfigMap
+Secret 
+
+Role
+RoleBinding
+ClusterRole 
+ClusterRoleBinding
+
+The above are some of the entities in K8s
+
+kubectl api-resources --> resources present in the K8s system 
+kubectl get nodes --> gets the details of all the nodes present in the K8s system 
+kubectl get namespaces 
+kubectl get pods 
+
+In K8s we cant directly create a container they are managed by pods 
+Pod --> group of one or more containers 
+Node --> Node is a system or a server part of a cluster 
+		 Node can be a Master or Worker 
+Workload --> An application running in a K8s cluster 
+NameSpace --> Logical grouping of K8s resources in the cluster 
+	We can have so many NameSpace in a single Cluster 
+	This will be helpful when multiple teams are using the same cluster 
+
