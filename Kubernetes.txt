@@ -130,4 +130,389 @@ Workload --> An application running in a K8s cluster
 NameSpace --> Logical grouping of K8s resources in the cluster 
 	We can have so many NameSpace in a single Cluster 
 	This will be helpful when multiple teams are using the same cluster 
+	namespace is a way of isolating group of resources within a single clusetr 
+	resource name should be unique in a single namsepace 
+	Any number of namespaces can be created within a cluster, each logically isolated from one other 
+	Namespaces cannot be nested in each other 
+	
+	There are 4 namespaces which are created by default 
+	kubectl get namespaces 
+	kubectl get ns 
+	By using the above commands we will get the namespaces in the system 
+	when multiple teams are using the same cluster then we can use namespace 
+	Types of namespaces
+	--------------------
+	default --> default namespace for objects which dont have defined namespace 
+	kube-system --> for objects created by Kubernetes system 
+		kubectl get all -n kube-system --> here kube-system can be replaced by any namespace name 
+		We can see all the objects of the particular namespace using above command 
+		Our objects should not be stored in kube-system namespace 
+	kube-public --> default namespace for readability of clients which doesnot require any authentication 
+	kube-node-lease --> namspace for objects related to cluster scaling
+When should we create NameSpaces?
+----------------------------------
+Isolation --> Isolate resources from one team to other 
+	Work in one ns will not affect the other 
+Permissions --> Seperate permissions can be create for every namespace 
+	We can protect sensitive data using these 
+Resource Control --> defining the resource limit at namespace level 
+	We can ensure each namespace can have access to certain amount of CPU and memory 
+Performance --> APi will have less items to search through when we perform speific operations 
 
+NameSpace creation 
+--------------------
+Imperative way 
+----------------
+kubectl create namespace test-ns --> NameSpace test-ns will be created 
+kubectl label namespace test-ns team=testing 
+
+kubectl run <podName> --image=<image> --port=<containerPort> -n test-ns 
+ex:-- kubectl run nginxpod --image=nginx --port=80 -n test-ns 
+
+Declarative way 
+-----------------
+testns.yaml  --> created in Stolkholm server 
+-------------
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: test-ns 
+  labels: 
+    team: testing 
+
+kubectl create -f <filename>.yaml --> creates the resource if not exists 
+kubectl apply -f <filename>.yaml --> it can create if resource dont exist and update if any changes 
+
+kubectl describe <object> <objectName> --> Gives the entire data about the Object 
+kubectl get all -A or kubectl get all --all-namespaces --> get all details of namespaces 
+
+Pod
+----
+Pod is the smallest object we can create in Kubernetes 
+Pod represent the running process it has conatiners in it 
+We can have single or Multi container pods in Clusters 
+Each pod has a unique IP address in the cluster 
+
+In K8s we cant directly create a container or manage it so we have a concept called pod in K8s 
+Pod is a group one or more containers which will run on the same node 
+If a pod has multiple containers they will be related as main container and Helper containers 
+In K8s we can attach Volumes to the pods 
+Pods abstract network and storage away from the underlying container 
+
+Pod Model types 
+-------------------
+Mostly a pod has only one conatiner, There are some instances where we can have multiple conatiners in the same pod 
+There are two model pods we can create 
+one conatiner per pod 
+----------------------
+Since pod is the smallest object it will manage the pod instead of managing the container 
+POD is the "wrapper" for single container 
+
+Multi-container-pod or Sidecar Containers 
+------------------------------------------
+A pod which can hold multiple containers in the same pod 
+here Network and Storage will be same for both containers 
+pod IP's are dynamic they are not same everytime 
+
+creating a pod 
+-----------------
+imperative way 
+---------------
+kubectl run <podName> --image=<image> --port=<ContainerPort> 
+
+declarative way --> creation done in server 
+----------------
+apiVersion: v1
+kind: Pod 
+metadata:
+  name: nginxpod 
+  labels:
+    app: nginx
+spec:
+  containers:
+  - name: nginxapp
+    image: nginx 
+	ports:
+	- containerPort: 80
+	
+kubectl get pods -o wide --> View complete details of the pod 
+kubectl describe pod <podName> --> complete details of the pod 
+
+
+Labels 
+-------
+one object uses other in K8s Labels are used 
+This is a key value pair
+
+labels:
+  app:ngnix 
+  manager:Kedhar
+
+kubectl run nginxpod --image=<image> --port=80 --labels="app=nginx"
+
+declarative way 
+---------------
+apiVersion: v1
+kind: Pod 
+metadata:
+  name: <podName>
+  labels:
+    <key>: <value>
+  namespace: <test-ns>
+spec:
+  containers:
+  - name: <nameOfContainer>
+    image: <image>
+    ports:
+    - containerPort: <portNumber>
+	env:
+	- Name= Value
+	resources:
+	  requests:
+	    cpu: ValueAvailable
+		memory: valueavailable 
+	  limits:
+	    cpu: valueavailable
+		memory: valueavailable
+	Volumes:
+	- name: <volumeName>
+	  hostPath:
+	    path: /test 
+  
+Selectors 
+----------
+These use the Label key to find a collection of objects matched with same value 
+
+One pod in K8s cluster can communicate with other using the pod IP.  But this is not recommended for inter pod communication 
+Here we can use one more object called Service 
+
+Service 
+--------
+K8s object that is responsible for making the pod discoverable.
+A service identifies the pod using the selectors. The application labels can be used as selectors here 
+K8s will have DNs pods and it will be mapped to Service IP's 
+Service is a logical concept real work is done by Kube-proxy 
+Ex:--
+
+apiVersion: v1 
+kind: Service 
+metadata: 
+  name: <serviceName> 
+  nameSpace: <nameSpace>
+spec:
+  type: clusterIP
+  selector: 
+    <key>: <value>
+  ports:
+  - port: <servicePort>
+    targetPort: <containerPort>
+
+kubectl get pods -o wide --show-labels --> to get the pod labels 
+The endpoints in service is nothing but the pod IP's.
+If there are multiple ep's then we can load balancing between them too
+Now we can go to other pod and we can communicate to the service as follows 
+	http://<serviceName>:port 
+If pods from different namespace need to cok=mmunicate we use FQDL --> Fully Qualified domain name 
+ex:-- http://<pod>.<nameSpace>.svc.cluster.local:port 
+
+NodePort 
+---------
+Along with port, target port we can use NodePort 
+Nodeport is used for external access 
+the renage of NodePort is 30000-32767 
+From outside the cluster we can access using the Ip and Node port 
+If we donot mention the Nodeport it will be automatically assigned by K8s 
+Instead of using clusterIP we can change the type as NodePort 
+
+kubectl logs <podname> --> logs of the mentioned pod
+We can multiple containers in the pods 
+We can mention that in the pod spec 
+We cannot add or update the pods directly 
+We need to delete it 1st and create again 
+kubectl delete pod <podName> 
+
+Pod Lifecycle 
+----------------
+make a Pod request to API server 
+API server saves the info for pod in ETCD 
+Scheduler find the pod and schedules in the node 
+Kubelet running on node sees the scheduled pod and starts container run time 
+Container run time pulls the image and runs the conatiners for the pod 
+Entire lifecycle can be stored in ETCD 
+
+Kubernetes we should not create the pod directly since we can face single pont of failure 
+Also there is a chance of pod not able to accomodate requests 
+
+Static pod 
+------------
+Pods which are managed by the kubelet 
+Static pods are not controlled by replication controller, Replica set controller etc..
+Main use of of this is to run control plane components
+Each Static pod has Ip as its suffix 
+/etc/kubernetes/manifests 
+We can just place the .yaml file in above directory and the static pod will be created 
+we can remove the file whenever so that we can delete the static pod 
+
+ReplicationController
+------------
+In K8s we shouldn't create pods directlhy we need to use Replication Controller
+These are responsible for managing the pod life cycle 
+It will allow us to create multiple pods with same configurations 
+If something happens to one pod it will be created again using the template we have given 
+This will also use container labels as selectors 
+template will contain the metadata and spec fields of the pod that need to be created 
+EX:--
+
+apiVersion: v1 
+kind: ReplicationController
+metadata:
+  name: <rcName>
+spec:
+  replicas: <no of pods>
+  selector:
+    <key>: <value> 
+  template:
+    metadata:
+	  name: <podName> 
+	  labels: 
+	    <key>: <value>
+	spec:
+	  container:
+	    - name: <containerName>
+		  image: <image>
+	  ports:
+	  - containerPort: <portNumber>
+	
+
+If the pod needs to be deleted from the cluster then we need to delete the ReplicationConroller
+Since if we delete the pod it will be created again we can delete the controller of the Pods 
+or else we can use 
+kubectl delete -f yamlFile --> All the resources defined in the file will be deleted using this 
+We can delete the rc as below 
+kubectl delete rc <RCName> -n <nameSpace> --> Delete the rc 
+
+ReplicaSet 
+------------
+Similar to rc the difference is the selectors support 
+It will also create and manage the pods. Here using selectors is mandatory 
+This is like advanced version of replicationCntroller 
+apiVersion is apps/v1 for replicaSet 
+shortForm is rs 
+selectors:
+  matchLabels:
+    <key>: <value> 
+
+EX:--
+
+apiVersion: apps/v1 
+kind: ReplicaSet 
+metadata:
+  name: <rsName>
+spec:
+  replicas: <no of pods>
+  selector:
+    matchLabels:
+      <key>: <value> 
+  template:
+    metadata:
+	  name: <podName> 
+	  labels: 
+	    <key>: <value>
+	spec:
+	  container:
+	    - name: <containerName>
+		  image: <image>
+	  ports:
+	  - containerPort: <portNumber>
+	  
+DaemonSet 
+-----------
+This is a K8s object which make sure each and every node has a copy of the pod 
+Deleting the DaemonSet will delete the pods it has created 
+Applications which are agent based can be deployed as a DaemonSet
+ex:
+
+apiVersion: apps/v1 
+kind: DaemonSet
+metadata:
+  name: <dsName>
+  namespace: <NameSpace>
+spec:
+  selector:
+    matchLabels:
+	  <key>: <value>
+  template:
+    metadata:
+	  labels:
+	    <key>: <value>
+	spec:
+	  containers:
+	  - name: <containerName>
+	    image: <image>
+		ports:
+		- containerPort: <containerPort>
+		
+in Spec: in template: we can give the tolerations:
+in this we can give key: effect: and operator:
+In effect if we give exists then a copy of the pod will be created in Master plane too
+
+Deployment
+------------
+It is also a K8s object which is the recommended way to deploy the application in K8s 
+There are additional features in this objects 
+Here we can replace old pods with new pods 
+If we are fine with our app being down while the updates we can still use rc and rs 
+
+Advantages 
+-----------
+This will create a ReplicaSet internally and rs will manage the pods 
+We can update the Pod Template here 
+There won't be any outage if we use this deployment object 
+There will be 0 downtime deployment 
+We can rollback to previous version using this object 
+
+Deployment Strategies
+----------------------
+There are several kind of this strategies 
+
+a.Rolling deployment 
+------------------
+This is the default deployment strategy in K8s 
+It will work slowly, one by one 
+It will replace the older pods with new pods without any downtime 
+This will wait for new pods to be ready before it scale down the old one 
+
+b.Recreate
+---------
+All of the old pods will be deleted first then the new pods will be created 
+All the old pods will be deleted at once 
+There will be downtime using this strategy 
+
+ex:--
+apiVersion: apps/v1 
+kind: Deployment 
+metadata:
+  name: <DeploymentName>
+spec:
+  replicas: <no of pods>
+  strategy:
+    type: Recreate 
+  selector:
+    matchLabels:
+	  <key>: <value>
+  template:
+    metadata:
+	  labels:
+	    <key>: <value>
+	spec:
+	  containers:
+	  - name: <containerName>
+	    image: <image>
+		ports:
+		- containerPort: <containerPort>
+
+kubectl rollout status deployment <name> -n <nameSpace> 
+kubectl rollout history deployment <name> --revision=<RevNo>
+
+kubectl rollout undo deployment <name> -n <nameSpace> --to-revision <RevisionNumber>
+if we dont mention --to-revision it will go back 1 revision 
