@@ -516,3 +516,334 @@ kubectl rollout history deployment <name> --revision=<RevNo>
 
 kubectl rollout undo deployment <name> -n <nameSpace> --to-revision <RevisionNumber>
 if we dont mention --to-revision it will go back 1 revision 
+
+
+Rolling Updates 
+Need to be written 
+
+Resource Requests and Limits 
+Need to be written 
+
+HPA --> Horizontal Pod Auto Scaler 
+-----------------------------------
+Automatically scales the number of pods in rc, replica set 
+It will be implemented as a K8s resource. It will periodically adjust the no of pods 
+By default it will observe for every 15 seconds 
+HPA internally requires a metric 
+
+If the load decreases then the no of pods will also be decreased 
+By default metrics is not available in K8s 
+HPA will interact with Metric API so we need to deploy an application called Metric Server 
+Without metric server deployed in K8s server HPA cannot increase or decrease the pods 
+
+Metric server is only for Auto scaling purpose 
+Metric server is used for CPU or memory based Auto scaling 
+
+kubectl top pods --> example command for finding whether Metric Server is installed or not 
+ex:-- 
+
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler 
+metadata:
+  name: <HPA name>
+  namespace: <namespace>
+spec:
+  scaleTargetref:
+    apiVersion: apps/v1
+	kind: Deployment 
+	name: <deploymentName>
+  minReplicas: 2
+  maxreplicas: 4
+  metrics:
+  - type: Resource 
+    resource:
+	  name: cpu 
+	  target:
+	    type: Utilization
+		averageutilization: <valueInPercentage>
+  - type: Resource 
+    resource:
+	  name: memory  
+	  target:
+	    type: Utilization
+		averageUtilization: <valueInPercentage>
+
+we need to add the arugement --kubelet-insecure-tls in the yaml file and after that we can apply the file 
+Even though if we define replicas in Deployments it will be overridden by the minReplicas in HPA 
+
+Statefull 
+----------
+Here the application can be inside the cluster and Database is outside the cluster 
+The application will be able to communicate still 
+If both the app and DB are deployed as pods in K8s cluster then they can have communication between them 
+This is called Inter pod communication and using the service we can make it possible 
+
+ex:--
+We can use sample mongo image from docker hub 
+For DB we should not have more than 1 DB 
+
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: mongodb
+  namespace: testns
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mongo
+  template:
+    metadata:
+      labels:
+        app: mongo
+    spec:
+      containers:
+      - name: mongo
+        image: mongo
+        ports:
+        - containerPort: 27017
+        env:
+        - name: MONGO_INITDB_ROOT_USERNAME
+          value: devdb
+        - name: MONGO_INITDB_ROOT_PASSWORD
+          value: devdb
+---
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongosvc
+  namespace: testns
+spec:
+  type: ClusterIP
+  selector:
+    app: mongo
+  ports:
+  - port: 27017
+
+
+
+Spring app Deployment 
+----------------------
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: springapp
+  namespace: testns
+spec:
+  replicas: 2
+  selector:
+   matchLabels:
+     app: springapp
+  template:
+    metadata:
+      labels:
+        app: springapp
+    spec:
+      containers:
+      - name: springapp
+        image: dockerhandson/spring-boot-app:1
+        ports:
+        - containerPort: 8080
+        env:
+        - name: MONGO_DB_HOSTNAME
+          value: mongodbsvc
+        - name: MONGO_INITDB_ROOT_USERNAME
+          value: devdb
+        - name: MONGO_INITDB_ROOT_PASSWORD
+          value: devdb
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: springappsvc
+  namespace: testns
+spec:
+  type: NodePort
+  selector:
+    app: springapp
+  ports:
+  - port: 80
+    targetPort: 8080 
+
+Volumes in K8s 
+----------------
+K8s supports many number of volumes and a pod can use any number of volumes 
+The way we define container: in pod template we can mention volume: in same way too 
+
+Voulme Types:
+  hostPath 
+  emptyDir
+  nfs 
+  azureDisk
+  azureFile
+  googlePersistentDisk
+  awsElasticBlockStore
+  glusterFs
+  ceaph
+  configMap
+  secret
+  persistentVolumeClaim
+
+by default awsElasticBlockStore is not supported in K8s now it is changed in v1.29 
+
+hostPath Volume
+----------------
+System wherever the pods are installed 
+It has many risks too, because we can access shell from the system 
+recommended to mount read only volumes 
+
+If we have multi container pod we can use volume for multiple containers or we can attach multiple volumes too 
+
+EmptyDir Volume 
+----------------
+It is initially empty, When a pod is gonna be created and it is assigned to the node 
+Pod is removed from the node then the data will be deleted permanently 
+If a container is crashed then the data remains 
+It is just like a temp storage, It is not recommended to use this kind of volumes 
+
+
+session 15 need to be written 
+
+pv gets associated with pvc based on access modes and capacity requested 
+pvc is used as a volume for a pod, Even though application is deleted pvc will be present 
+the volume details will be permanent even after application deletion 
+
+ACCESS MODES 
+--------------
+ReadWriteOnce (RWO)
+  Volume can be mounted by Read write by a single node 
+  If multiple pods are scheduled in same node then also this mode can be used 
+ReadWriteMany(RWX)
+  Volume can mounted as Read Write by many nodes 
+  Pods scheduled on different nodes can use this volume as shared volume 
+ReadOnlyMany(ROX)
+  Pods can read even if they are in any node in cluster 
+  This is supported for only CSI volumes 
+
+All the volumes wont support all access modes 
+We need to use the mode as per our requirement 
+
+ReClaim Policies 
+-----------------
+If we are done with app completely and need not deploy it again so we can delete the pvc 
+If pods are still running we cannot delete the associated pvc 
+If the pvc is deleted what happens to PV depands on the ReClaim policy
+
+Retain 
+  Allows manual reclaimation of a resource 
+  Volume will not be allowed for other claim
+  Volume and the data in it wont be deleted   
+Recycle
+  PV will not be deleted here and it will be available for a new claim 
+Delete
+  Here deletion removes both pvc and the associated volume 
+  
+If the PV is deleted and not present even if we request using pvc storage will not be provides 
+
+Storage Class(sc)
+------------------
+It is also a K8s object it has paramters like provisioner, paraameter & ReClaimpolicy 
+If we configure multiple storage classes for a claim as a K8s admin we can use 1 class as default 
+K8s dont have any nfs provisioner by default 
+We can use external provisioner to create sc 
+
+NFS Subdir External Provisioner uses already configured nfs server for dynamically creating the PV 
+For each PV it will create a sub directory in the nfs server 
+We need to deploy the external nfs provisioner and using that we need to configure the storage class 
+If there are multiple storage class we need to mention which storage class we need to use 
+
+Now since we have configured the sc even if we just create the pvc it will be allocated a storage/pv 
+
+
+ConfigMap & Secret 
+-------------------
+App configurations can change between the environments and we want our app to be portable 
+We need to make sure that our image can be usd for all the environments 
+K8s will allow us to provide confif info to our application through ConfigMap & Secret
+
+We can store data as key value pair of data in ConfigMap 
+In ConfigMap we use non confidential data 
+We can use Secret to store confidential data 
+We can keep config data seperate from your application code 
+We can mount ConfigMap as volumes also 
+
+apiVersion: v1 
+kind: ConfigMap
+metadata: 
+  name: <configName>
+  namespace: <nameSpace>
+data:
+  # property like values 
+  <key>: <value>
+  
+  # file like values 
+  <FileName>:
+    <key>: <value> 
+
+in etcd K8s will maintain all the data 
+Data can be passed to our app in 4 ways 
+Data can be read as CLI or as volumes from ConfigMap
+
+data can be read from ConfigMap as follows 
+env:
+  - name: <ENV var name>
+    valueFrom:
+	  ConfigMapKeyRef:
+	    name: game-demo #ConfigMap name
+		key: <env_variable> #Key to fetcgh from config map 
+
+volumeMounts:
+- name: config 
+  mountPath: "/config"
+  readOnly: true 
+
+Use reference files from Kubernetes official website 
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: tomcatconfig
+  namespace: testns
+data:
+  tomcat-users.xml: #This is the file name 
+    Conf ditectory data in TOmcat can be pasted here 
+---
+Java Web app yaml here
+containers:
+***
+***
+  volumeMounts:
+  - name: tomcatconf
+    mountPath: /usr/local/tomcat/conf/tomcat-users.xml 
+	subPath: "tomcat-users.xml"
+volumes:
+- name: <volume Name>
+  configMap:
+    name: tomcatconfig
+	items:
+	- key: "tomcat-users.xml"
+	  path: "tomcat-users.xml"
+	  
+Secret
+---------
+It is a object in K8s which contains smal amount of confidential data 
+Secrets can be used in pod containers 
+These are stored in etcd and tehy are not encrypted 
+
+There are multile types of secrets in K8s 
+
+apiVersion: v1
+kind: Secret
+metadata:
+  name: springappsecret
+  namespace: testns
+type: opaque
+data:
+  mongodb_password: #base 64 value of password
+  
+password can be referred in spring app as below 
+valueFrom:
+  secretKeyRef:
+    name: springappsecret #Secret name 
+	key: mongodb_password #key in the secret file 
